@@ -29,14 +29,13 @@ export default function LoginPage() {
             />
           </Field>
 
-          <Field label="Code" htmlFor="code">
+          <Field label="Password or code" htmlFor="code">
             <Input
               id="code"
               name="code"
               type="password"
-              inputMode="numeric"
               autoComplete="current-password"
-              placeholder="Temporary code or your PIN"
+              placeholder="Your password, PIN, or temporary code"
               required
             />
           </Field>
@@ -49,8 +48,8 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-xs text-muted">
-          First time signing in? Use the temporary code your administrator shared with you —
-          you&apos;ll be asked to create a personal PIN right after.
+          Students, first time signing in? Use the temporary code your administrator shared
+          with you — you&apos;ll be asked to create a personal PIN right after.
         </p>
       </div>
     </main>

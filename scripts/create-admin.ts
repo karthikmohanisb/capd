@@ -1,9 +1,11 @@
-// One-off bootstrap script: creates the very first admin account(s).
-// There is no admin sign-up UI by design — admins are provisioned directly
-// against Supabase. Re-run this any time you need to add another admin.
+// One-off bootstrap script: creates admin account(s). There is no admin
+// sign-up UI by design — admins are provisioned directly against Supabase.
+// Unlike students, admins log in with this password permanently (no forced
+// PIN reset) — the 6-digit-PIN flow exists to give students something easy
+// to remember, not because it's a stronger credential.
 //
 // Usage:
-//   npx tsx scripts/create-admin.ts you@institution.edu 654321 "Jane Doe"
+//   npx tsx scripts/create-admin.ts you@institution.edu "A Strong-Password1" "Jane Doe"
 //   npx tsx scripts/create-admin.ts        (prompts for each value instead)
 
 import { config } from "dotenv";
@@ -22,21 +24,21 @@ if (!url || !serviceRoleKey) {
   process.exit(1);
 }
 
-const [, , emailArg, passcodeArg, ...nameParts] = process.argv;
+const [, , emailArg, passwordArg, ...nameParts] = process.argv;
 
 async function main() {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
   const email = (emailArg ?? (await rl.question("Admin email: "))).trim().toLowerCase();
-  const passcode = passcodeArg ?? (await rl.question("Temporary passcode (min 6 characters): "));
+  const password = passwordArg ?? (await rl.question("Password (min 6 characters): "));
   const fullName = nameParts.length
     ? nameParts.join(" ")
     : await rl.question("Full name (optional): ");
 
   rl.close();
 
-  if (!email || !passcode || passcode.length < 6) {
-    console.error("An email and a passcode of at least 6 characters are required.");
+  if (!email || !password || password.length < 6) {
+    console.error("An email and a password of at least 6 characters are required.");
     process.exit(1);
   }
 
@@ -46,7 +48,7 @@ async function main() {
 
   const { data: created, error: createError } = await supabase.auth.admin.createUser({
     email,
-    password: passcode,
+    password,
     email_confirm: true,
   });
 
@@ -61,7 +63,7 @@ async function main() {
     full_name: fullName || null,
     role: "admin",
     status: "active",
-    must_set_pin: true,
+    must_set_pin: false,
   });
 
   if (profileError) {
@@ -71,8 +73,7 @@ async function main() {
   }
 
   console.log(`\nAdmin account created for ${email}.`);
-  console.log(`Temporary passcode: ${passcode}`);
-  console.log("They'll be asked to set a personal 6-digit PIN on first login.\n");
+  console.log("They can log in with this email and password right away.\n");
 }
 
 main();
