@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loginSchema, pinSchema } from "./validation";
 
-export type ActionState = { error: string } | undefined;
+export type ActionState = { error?: string; success?: string } | undefined;
 
 export async function login(
   _prevState: ActionState,
@@ -105,6 +105,24 @@ export async function setPin(
     .single();
 
   redirect(profile?.role === "admin" ? "/admin" : "/attendance");
+}
+
+export async function requestPinReset(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+
+  if (!email) {
+    return { error: "Enter your email address." };
+  }
+
+  const supabase = await createClient();
+  await supabase.auth.resetPasswordForEmail(email);
+
+  // Always the same message whether or not the email is registered, so
+  // this can't be used to check which addresses have accounts.
+  return { success: "If that email is registered, we've sent a reset link to it." };
 }
 
 export async function logout() {

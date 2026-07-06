@@ -15,17 +15,31 @@ export function DetailActions({ sessionId, status }: { sessionId: string; status
       <StatusBadge status={status} />
       <div className="flex flex-wrap gap-2">
         {status !== "open" && (
-          <Button
-            type="button"
-            loading={pending}
-            className="px-3 py-2 text-xs"
-            onClick={() => startTransition(async () => {
-              await openSession(sessionId);
-              router.refresh();
-            })}
-          >
-            Open session
-          </Button>
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              loading={pending}
+              className="px-3 py-2 text-xs"
+              onClick={() => startTransition(async () => {
+                await openSession(sessionId, false);
+                router.refresh();
+              })}
+            >
+              Open session
+            </Button>
+            <Button
+              type="button"
+              loading={pending}
+              className="px-3 py-2 text-xs"
+              onClick={() => startTransition(async () => {
+                await openSession(sessionId, true);
+                router.refresh();
+              })}
+            >
+              Open &amp; notify everyone
+            </Button>
+          </>
         )}
         {status === "open" && (
           <Button

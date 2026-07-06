@@ -10,7 +10,7 @@ import { publicEnv } from "@/lib/env/public";
 // which belongs in each page's own server-side check (see lib/auth/dal.ts),
 // not here. See Next.js's data-security guide: proxy is a fast, coarse
 // first line, never the only line, of defense.
-const PUBLIC_PATHS = ["/login"];
+const PUBLIC_PATHS = ["/login", "/forgot-pin"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -63,6 +63,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|icon|apple-icon|icons|manifest.webmanifest).*)",
+    "/((?!api|auth/confirm|_next/static|_next/image|icon|apple-icon|icons|manifest.webmanifest).*)",
   ],
 };

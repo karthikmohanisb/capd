@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidAttendanceCode } from "./code";
 import { checkAndRecordRateLimit } from "@/lib/rate-limit";
+import { sendNotificationCore } from "@/lib/notifications/send";
 
 export type ActionState = { error?: string; success?: string } | undefined;
 
@@ -44,13 +45,35 @@ export async function createSession(
   return { success: "Session created." };
 }
 
-export async function openSession(sessionId: string) {
-  await requireAdmin();
+export async function openSession(sessionId: string, notifyStudents = false) {
+  const admin = await requireAdmin();
   const supabase = await createClient();
-  await supabase
+  const { data: session } = await supabase
     .from("attendance_sessions")
     .update({ status: "open", opened_at: new Date().toISOString() })
-    .eq("id", sessionId);
+    .eq("id", sessionId)
+    .select("title")
+    .single();
+
+  if (notifyStudents && session) {
+    const { data: notification } = await supabase
+      .from("notifications")
+      .insert({
+        title: "Attendance is open",
+        message: `Attendance for "${session.title}" is now open. Tap to check in.`,
+        deep_link: "/attendance",
+        created_by: admin.id,
+        audience: "all",
+        status: "draft",
+      })
+      .select("id")
+      .single();
+
+    if (notification) {
+      await sendNotificationCore(supabase, notification.id);
+    }
+    revalidatePath("/admin/notifications");
+  }
 
   revalidatePath("/admin/attendance");
   revalidatePath(`/admin/attendance/${sessionId}`);
