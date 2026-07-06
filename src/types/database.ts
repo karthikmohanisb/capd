@@ -13,7 +13,9 @@ export type Json =
 export type ProfileRole = "student" | "admin";
 export type ProfileStatus = "active" | "disabled";
 export type AttendanceSessionStatus = "draft" | "open" | "closed";
-export type NotificationAudience = "all" | "selected";
+export type AudienceType = "all" | "cohort" | "custom";
+export type NotificationAudience = "all" | "cohort" | "selected";
+export type EventStatus = "draft" | "published" | "cancelled";
 export type NotificationStatus =
   | "draft"
   | "scheduled"
@@ -41,6 +43,7 @@ export interface Database {
           role: ProfileRole;
           status: ProfileStatus;
           must_set_pin: boolean;
+          cohort_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -52,6 +55,7 @@ export interface Database {
           role?: ProfileRole;
           status?: ProfileStatus;
           must_set_pin?: boolean;
+          cohort_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -67,6 +71,8 @@ export interface Database {
           status: AttendanceSessionStatus;
           code_interval_seconds: number;
           session_secret: string;
+          audience_type: AudienceType;
+          cohort_id: string | null;
           opened_at: string | null;
           closed_at: string | null;
           created_at: string;
@@ -79,12 +85,28 @@ export interface Database {
           created_by?: string | null;
           status?: AttendanceSessionStatus;
           code_interval_seconds?: number;
+          audience_type?: AudienceType;
+          cohort_id?: string | null;
           opened_at?: string | null;
           closed_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["attendance_sessions"]["Insert"]>;
+        Relationships: [];
+      };
+      attendance_session_participants: {
+        Row: {
+          id: string;
+          session_id: string;
+          student_id: string;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          student_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["attendance_session_participants"]["Insert"]>;
         Relationships: [];
       };
       attendance_records: {
@@ -139,6 +161,7 @@ export interface Database {
           deep_link: string | null;
           created_by: string | null;
           audience: NotificationAudience;
+          cohort_id: string | null;
           status: NotificationStatus;
           scheduled_at: string | null;
           sent_at: string | null;
@@ -155,6 +178,7 @@ export interface Database {
           deep_link?: string | null;
           created_by?: string | null;
           audience?: NotificationAudience;
+          cohort_id?: string | null;
           status?: NotificationStatus;
           scheduled_at?: string | null;
           sent_at?: string | null;
@@ -251,6 +275,68 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["rate_limit_hits"]["Insert"]>;
         Relationships: [];
       };
+      cohorts: {
+        Row: {
+          id: string;
+          name: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["cohorts"]["Insert"]>;
+        Relationships: [];
+      };
+      events: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          location: string | null;
+          category: string | null;
+          event_at: string | null;
+          status: EventStatus;
+          audience_type: AudienceType;
+          cohort_id: string | null;
+          attendance_session_id: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          description?: string | null;
+          location?: string | null;
+          category?: string | null;
+          event_at?: string | null;
+          status?: EventStatus;
+          audience_type?: AudienceType;
+          cohort_id?: string | null;
+          attendance_session_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["events"]["Insert"]>;
+        Relationships: [];
+      };
+      event_participants: {
+        Row: {
+          id: string;
+          event_id: string;
+          student_id: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          student_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["event_participants"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: {
       open_attendance_sessions: {
@@ -261,6 +347,19 @@ export interface Database {
           status: AttendanceSessionStatus;
           opened_at: string | null;
           closed_at: string | null;
+          created_at: string;
+        };
+        Relationships: [];
+      };
+      published_events: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          location: string | null;
+          category: string | null;
+          event_at: string | null;
+          attendance_session_id: string | null;
           created_at: string;
         };
         Relationships: [];

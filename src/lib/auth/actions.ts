@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { publicEnv } from "@/lib/env/public";
 import { loginSchema, pinSchema } from "./validation";
 
 export type ActionState = { error?: string; success?: string } | undefined;
@@ -117,8 +118,13 @@ export async function requestPinReset(
     return { error: "Enter your email address." };
   }
 
+  // Supabase's recovery link redirects with the session in a URL hash
+  // fragment, which never reaches the server — so this points straight at
+  // /reset-pin, which handles it client-side (see reset-pin-client.tsx).
   const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(email);
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${publicEnv().NEXT_PUBLIC_APP_URL}/reset-pin`,
+  });
 
   // Always the same message whether or not the email is registered, so
   // this can't be used to check which addresses have accounts.

@@ -1,14 +1,6 @@
-import { redirect } from "next/navigation";
-import { getCurrentProfile } from "@/lib/auth/dal";
-import { PinForm } from "@/components/pin-form";
+import { ResetPinClient } from "./reset-pin-client";
 
-export default async function ResetPinPage() {
-  const profile = await getCurrentProfile();
-
-  if (!profile || profile.status !== "active") {
-    redirect("/login?error=" + encodeURIComponent("That reset link is invalid or has expired."));
-  }
-
+export default function ResetPinPage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
@@ -18,7 +10,7 @@ export default async function ResetPinPage() {
             Choose a new 6-digit PIN. You&apos;ll use it with your email to sign in.
           </p>
         </div>
-        <PinForm />
+        <ResetPinClient />
       </div>
     </main>
   );
