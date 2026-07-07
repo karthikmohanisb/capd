@@ -20,7 +20,7 @@ export async function createEvent(
   const location = String(formData.get("location") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
   const eventAtRaw = String(formData.get("event_at") ?? "");
-  const attendanceSessionId = String(formData.get("attendance_session_id") ?? "").trim();
+  const enableAttendance = formData.get("enable_attendance") === "on";
 
   const audienceType = formData.get("audience_type");
   const audience: "all" | "cohort" | "custom" =
@@ -41,6 +41,43 @@ export async function createEvent(
   const eventAt = eventAtRaw ? new Date(eventAtRaw).toISOString() : null;
 
   const supabase = await createClient();
+
+  // Enabling attendance creates a session with the same audience as the
+  // event, so admins never have to jump to the separate Attendance tab
+  // just to get a session set up — they still go there to open/close it
+  // live, or can do that right from the event card below.
+  let attendanceSessionId: string | null = null;
+  if (enableAttendance) {
+    const { data: session, error: sessionError } = await supabase
+      .from("attendance_sessions")
+      .insert({
+        title,
+        description: description || null,
+        created_by: admin.id,
+        code_interval_seconds: 45,
+        audience_type: audience,
+        cohort_id: cohortId,
+      })
+      .select("id")
+      .single();
+
+    if (sessionError || !session) {
+      return { error: "Could not set up attendance for this event. Please try again." };
+    }
+
+    if (audience === "custom") {
+      const rows = studentIds.map((studentId) => ({ session_id: session.id, student_id: studentId }));
+      const { error: participantsError } = await supabase
+        .from("attendance_session_participants")
+        .insert(rows);
+      if (participantsError) {
+        return { error: "Attendance was set up, but saving the custom list failed. Please try again." };
+      }
+    }
+
+    attendanceSessionId = session.id;
+  }
+
   const { data: event, error } = await supabase
     .from("events")
     .insert({
@@ -51,7 +88,7 @@ export async function createEvent(
       event_at: eventAt,
       audience_type: audience,
       cohort_id: cohortId,
-      attendance_session_id: attendanceSessionId || null,
+      attendance_session_id: attendanceSessionId,
       created_by: admin.id,
       status: "draft",
     })
@@ -71,7 +108,12 @@ export async function createEvent(
   }
 
   revalidatePath("/admin/events");
-  return { success: "Event created as a draft." };
+  if (enableAttendance) revalidatePath("/admin/attendance");
+  return {
+    success: enableAttendance
+      ? "Event created as a draft, with attendance ready to open."
+      : "Event created as a draft.",
+  };
 }
 
 export async function publishEvent(eventId: string, notifyStudents: boolean) {
@@ -98,7 +140,7 @@ export async function publishEvent(eventId: string, notifyStudents: boolean) {
       .insert({
         title: `New event: ${event.title}`,
         message: event.description || "Tap to see details.",
-        deep_link: "/events",
+        deep_link: `/events/${eventId}`,
         created_by: admin.id,
         audience: notificationAudience,
         cohort_id: event.cohort_id,

@@ -1,7 +1,7 @@
 import { requireStudent } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
-import { CodeForm } from "./code-form";
+import { CodeForm } from "@/components/code-form";
 
 export default async function AttendancePage() {
   const student = await requireStudent();

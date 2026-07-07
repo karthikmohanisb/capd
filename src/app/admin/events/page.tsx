@@ -4,16 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EventForm } from "./event-form";
 import { EventActions } from "./event-actions";
+import { SessionActions } from "../attendance/session-actions";
 import type { EventStatus } from "@/types/database";
 
 export default async function AdminEventsPage() {
   await requireAdmin();
   const supabase = await createClient();
 
-  const [{ data: events }, { data: cohorts }, { data: students }, { data: sessions }] = await Promise.all([
+  const [{ data: events }, { data: cohorts }, { data: students }] = await Promise.all([
     supabase
       .from("events")
-      .select("id, title, description, location, category, event_at, status, audience_type, cohort_id")
+      .select(
+        "id, title, description, location, category, event_at, status, audience_type, cohort_id, attendance_session_id"
+      )
       .order("created_at", { ascending: false })
       .limit(50),
     supabase.from("cohorts").select("id, name").order("name", { ascending: true }),
@@ -23,14 +26,17 @@ export default async function AdminEventsPage() {
       .eq("role", "student")
       .eq("status", "active")
       .order("email", { ascending: true }),
-    supabase
-      .from("attendance_sessions")
-      .select("id, title")
-      .neq("status", "closed")
-      .order("created_at", { ascending: false }),
   ]);
 
   const cohortNameById = new Map((cohorts ?? []).map((c) => [c.id, c.name]));
+
+  const sessionIds = (events ?? [])
+    .map((e) => e.attendance_session_id)
+    .filter((id): id is string => Boolean(id));
+  const { data: sessions } = sessionIds.length
+    ? await supabase.from("attendance_sessions").select("id, status").in("id", sessionIds)
+    : { data: [] };
+  const sessionStatusById = new Map((sessions ?? []).map((s) => [s.id, s.status]));
 
   return (
     <div className="flex flex-col gap-6 px-4 py-6">
@@ -42,7 +48,7 @@ export default async function AdminEventsPage() {
       </div>
 
       <Card>
-        <EventForm cohorts={cohorts ?? []} students={students ?? []} sessions={sessions ?? []} />
+        <EventForm cohorts={cohorts ?? []} students={students ?? []} />
       </Card>
 
       <div className="flex flex-col gap-3">
@@ -68,6 +74,21 @@ export default async function AdminEventsPage() {
                 {event.audience_type === "custom" && "Custom list"}
               </p>
               <EventActions eventId={event.id} status={event.status} />
+
+              {event.attendance_session_id && (
+                <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-medium text-foreground">Attendance</p>
+                    <AttendanceStatusBadge
+                      status={sessionStatusById.get(event.attendance_session_id) ?? "draft"}
+                    />
+                  </div>
+                  <SessionActions
+                    sessionId={event.attendance_session_id}
+                    status={sessionStatusById.get(event.attendance_session_id) ?? "draft"}
+                  />
+                </div>
+              )}
             </Card>
           ))
         ) : (
@@ -81,5 +102,11 @@ export default async function AdminEventsPage() {
 function StatusBadge({ status }: { status: EventStatus }) {
   if (status === "published") return <Badge tone="success">Published</Badge>;
   if (status === "cancelled") return <Badge tone="neutral">Cancelled</Badge>;
+  return <Badge tone="warning">Draft</Badge>;
+}
+
+function AttendanceStatusBadge({ status }: { status: string }) {
+  if (status === "open") return <Badge tone="success">Open</Badge>;
+  if (status === "closed") return <Badge tone="neutral">Closed</Badge>;
   return <Badge tone="warning">Draft</Badge>;
 }

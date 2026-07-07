@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireStudent } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
@@ -18,22 +19,24 @@ export default async function EventsPage() {
 
       {events?.length ? (
         events.map((event) => (
-          <Card key={event.id}>
-            <div className="flex items-start justify-between gap-2">
-              <p className="font-medium text-foreground">{event.title}</p>
-              {event.category && <Badge>{event.category}</Badge>}
-            </div>
-            {event.description && <p className="mt-1 text-sm text-muted">{event.description}</p>}
-            <p className="mt-2 text-xs text-muted">
-              {event.event_at && new Date(event.event_at).toLocaleString()}
-              {event.location && ` · ${event.location}`}
-            </p>
-            {event.attendance_session_id && (
-              <a href="/attendance" className="mt-2 inline-block text-xs font-medium text-primary hover:underline">
-                Check in for attendance →
-              </a>
-            )}
-          </Card>
+          <Link key={event.id} href={`/events/${event.id}`}>
+            <Card>
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-medium text-foreground">{event.title}</p>
+                {event.category && <Badge>{event.category}</Badge>}
+              </div>
+              {event.description && (
+                <p className="mt-1 line-clamp-2 text-sm text-muted">{event.description}</p>
+              )}
+              <p className="mt-2 text-xs text-muted">
+                {event.event_at && new Date(event.event_at).toLocaleString()}
+                {event.location && ` · ${event.location}`}
+              </p>
+              {event.attendance_session_id && (
+                <p className="mt-2 text-xs font-medium text-primary">Attendance available →</p>
+              )}
+            </Card>
+          </Link>
         ))
       ) : (
         <p className="text-sm text-muted">No events right now.</p>

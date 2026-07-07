@@ -5,7 +5,6 @@ import { createEvent, type ActionState } from "@/lib/events/actions";
 import { AudiencePicker } from "@/components/audience-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FormError } from "@/components/ui/field";
 
@@ -20,19 +19,12 @@ interface StudentOption {
   full_name: string | null;
 }
 
-interface SessionOption {
-  id: string;
-  title: string;
-}
-
 export function EventForm({
   cohorts,
   students,
-  sessions,
 }: {
   cohorts: Cohort[];
   students: StudentOption[];
-  sessions: SessionOption[];
 }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(createEvent, undefined);
   const formRef = useRef<HTMLFormElement>(null);
@@ -65,20 +57,16 @@ export function EventForm({
         <Input id="category" name="category" placeholder="e.g. Professional Club" />
       </Field>
 
-      {sessions.length > 0 && (
-        <Field label="Link an attendance session (optional)" htmlFor="attendance_session_id">
-          <Select id="attendance_session_id" name="attendance_session_id" defaultValue="">
-            <option value="">No attendance for this event</option>
-            {sessions.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.title}
-              </option>
-            ))}
-          </Select>
-        </Field>
-      )}
-
       <AudiencePicker cohorts={cohorts} students={students} />
+
+      <label className="flex items-center gap-2 text-sm text-foreground">
+        <input type="checkbox" name="enable_attendance" className="h-4 w-4" />
+        Enable attendance for this event
+      </label>
+      <p className="-mt-2 text-xs text-muted">
+        Creates a rotating check-in code for the audience above. Open and close it from the
+        event card once it&apos;s created, or from the Attendance tab.
+      </p>
 
       <FormError message={state?.error} />
       {state?.success && <p className="text-sm font-medium text-success">{state.success}</p>}
