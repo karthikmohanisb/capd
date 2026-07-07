@@ -25,7 +25,7 @@ export async function resetStudentPin(studentId: string): Promise<ResetPinState>
   });
 
   if (authError) {
-    return { error: "Could not reset this student's PIN. Please try again." };
+    return { error: `Could not reset this student's PIN: ${authError.message}` };
   }
 
   const supabase = await createClient();
