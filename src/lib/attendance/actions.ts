@@ -29,16 +29,45 @@ export async function createSession(
     return { error: "Enter a session title (up to 120 characters)." };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("attendance_sessions").insert({
-    title,
-    description: description || null,
-    created_by: admin.id,
-    code_interval_seconds: interval,
-  });
+  const audienceType = formData.get("audience_type") === "cohort" || formData.get("audience_type") === "custom"
+    ? (formData.get("audience_type") as "cohort" | "custom")
+    : "all";
+  const cohortId = audienceType === "cohort" ? String(formData.get("cohort_id") ?? "") || null : null;
+  const studentIds = audienceType === "custom" ? formData.getAll("student_ids").map(String).filter(Boolean) : [];
 
-  if (error) {
+  if (audienceType === "cohort" && !cohortId) {
+    return { error: "Choose a cohort." };
+  }
+  if (audienceType === "custom" && studentIds.length === 0) {
+    return { error: "Select at least one student for the custom list." };
+  }
+
+  const supabase = await createClient();
+  const { data: session, error } = await supabase
+    .from("attendance_sessions")
+    .insert({
+      title,
+      description: description || null,
+      created_by: admin.id,
+      code_interval_seconds: interval,
+      audience_type: audienceType,
+      cohort_id: cohortId,
+    })
+    .select("id")
+    .single();
+
+  if (error || !session) {
     return { error: "Could not create the session. Please try again." };
+  }
+
+  if (audienceType === "custom") {
+    const rows = studentIds.map((studentId) => ({ session_id: session.id, student_id: studentId }));
+    const { error: participantsError } = await supabase
+      .from("attendance_session_participants")
+      .insert(rows);
+    if (participantsError) {
+      return { error: "Session created, but saving the custom list failed. Please try again." };
+    }
   }
 
   revalidatePath("/admin/attendance");
@@ -134,7 +163,7 @@ export async function markAttendance(
   const admin = createAdminClient();
   const { data: session, error: sessionError } = await admin
     .from("attendance_sessions")
-    .select("id, status, session_secret, code_interval_seconds")
+    .select("id, status, session_secret, code_interval_seconds, audience_type, cohort_id")
     .eq("id", sessionId)
     .abortSignal(AbortSignal.timeout(8000))
     .single();
@@ -145,6 +174,30 @@ export async function markAttendance(
 
   if (session.status !== "open") {
     return { error: "This attendance session is not currently open." };
+  }
+
+  // Defense in depth: the student-facing view already hides sessions
+  // outside a student's audience, but a shared/leaked code shouldn't work
+  // for them either — re-check membership here, not just visibility.
+  if (session.audience_type === "cohort") {
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("cohort_id")
+      .eq("id", student.id)
+      .single();
+    if (!profile || profile.cohort_id !== session.cohort_id) {
+      return { error: "This attendance session isn't open to you." };
+    }
+  } else if (session.audience_type === "custom") {
+    const { data: participant } = await admin
+      .from("attendance_session_participants")
+      .select("id")
+      .eq("session_id", sessionId)
+      .eq("student_id", student.id)
+      .maybeSingle();
+    if (!participant) {
+      return { error: "This attendance session isn't open to you." };
+    }
   }
 
   const valid = isValidAttendanceCode(

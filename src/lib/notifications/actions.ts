@@ -19,7 +19,10 @@ export async function createNotification(
   const title = String(formData.get("title") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
   const deepLink = String(formData.get("deep_link") ?? "").trim();
-  const audience = formData.get("audience") === "selected" ? "selected" : "all";
+  const audienceType = formData.get("audience_type");
+  const audience: "all" | "cohort" | "selected" =
+    audienceType === "cohort" ? "cohort" : audienceType === "custom" ? "selected" : "all";
+  const cohortId = audience === "cohort" ? String(formData.get("cohort_id") ?? "") || null : null;
   const sendMode = String(formData.get("send_mode") ?? "now");
   const scheduledAtRaw = String(formData.get("scheduled_at") ?? "");
   const selectedStudentIds = formData.getAll("student_ids").map(String).filter(Boolean);
@@ -31,7 +34,10 @@ export async function createNotification(
     return { error: "Enter a message (up to 500 characters)." };
   }
   if (audience === "selected" && selectedStudentIds.length === 0) {
-    return { error: 'Select at least one student, or choose "Everyone".' };
+    return { error: "Select at least one student, or choose a different audience." };
+  }
+  if (audience === "cohort" && !cohortId) {
+    return { error: "Choose a cohort." };
   }
 
   let scheduledAt: string | null = null;
@@ -56,6 +62,7 @@ export async function createNotification(
       deep_link: deepLink || null,
       created_by: admin.id,
       audience,
+      cohort_id: cohortId,
       status: scheduledAt ? "scheduled" : "draft",
       scheduled_at: scheduledAt,
     })

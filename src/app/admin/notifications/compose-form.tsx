@@ -1,11 +1,17 @@
 "use client";
 
-import { useActionState, useMemo, useRef, useState, useEffect } from "react";
+import { useActionState, useRef, useState, useEffect } from "react";
 import { createNotification, type ActionState } from "@/lib/notifications/actions";
+import { AudiencePicker } from "@/components/audience-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FormError } from "@/components/ui/field";
+
+interface Cohort {
+  id: string;
+  name: string;
+}
 
 interface StudentOption {
   id: string;
@@ -13,44 +19,20 @@ interface StudentOption {
   full_name: string | null;
 }
 
-export function ComposeForm({ students }: { students: StudentOption[] }) {
+export function ComposeForm({ cohorts, students }: { cohorts: Cohort[]; students: StudentOption[] }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     createNotification,
     undefined
   );
-  const [audience, setAudience] = useState<"all" | "selected">("all");
   const [sendMode, setSendMode] = useState<"now" | "schedule">("now");
-  const [search, setSearch] = useState("");
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (state?.success) {
       formRef.current?.reset();
-      setSelectedIds(new Set());
-      setAudience("all");
       setSendMode("now");
     }
   }, [state]);
-
-  const filteredStudents = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return students.slice(0, 50);
-    return students
-      .filter(
-        (s) => s.email.toLowerCase().includes(q) || s.full_name?.toLowerCase().includes(q)
-      )
-      .slice(0, 50);
-  }, [students, search]);
-
-  function toggleStudent(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-3">
@@ -66,59 +48,7 @@ export function ComposeForm({ students }: { students: StudentOption[] }) {
         <Input id="deep_link" name="deep_link" placeholder="/attendance" />
       </Field>
 
-      <fieldset className="flex flex-col gap-1.5">
-        <legend className="text-sm font-medium text-foreground">Send to</legend>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-sm text-foreground">
-            <input
-              type="radio"
-              name="audience"
-              value="all"
-              checked={audience === "all"}
-              onChange={() => setAudience("all")}
-            />
-            Everyone
-          </label>
-          <label className="flex items-center gap-1.5 text-sm text-foreground">
-            <input
-              type="radio"
-              name="audience"
-              value="selected"
-              checked={audience === "selected"}
-              onChange={() => setAudience("selected")}
-            />
-            Selected students
-          </label>
-        </div>
-      </fieldset>
-
-      {audience === "selected" && (
-        <div className="flex flex-col gap-2 rounded-card border border-border p-3">
-          <Input
-            placeholder="Search by name or email"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <p className="text-xs text-muted">{selectedIds.size} selected</p>
-          <div className="max-h-48 overflow-y-auto">
-            {filteredStudents.map((s) => (
-              <label key={s.id} className="flex items-center gap-2 py-1 text-sm text-foreground">
-                <input
-                  type="checkbox"
-                  name="student_ids"
-                  value={s.id}
-                  checked={selectedIds.has(s.id)}
-                  onChange={() => toggleStudent(s.id)}
-                />
-                {s.full_name ? `${s.full_name} — ${s.email}` : s.email}
-              </label>
-            ))}
-            {filteredStudents.length === 0 && (
-              <p className="py-1 text-sm text-muted">No students match.</p>
-            )}
-          </div>
-        </div>
-      )}
+      <AudiencePicker cohorts={cohorts} students={students} />
 
       <fieldset className="flex flex-col gap-1.5">
         <legend className="text-sm font-medium text-foreground">When</legend>

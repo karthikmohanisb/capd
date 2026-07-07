@@ -15,7 +15,7 @@ export async function sendNotificationCore(
 ) {
   const { data: notification } = await supabase
     .from("notifications")
-    .select("id, title, message, deep_link, audience, status")
+    .select("id, title, message, deep_link, audience, cohort_id, status")
     .eq("id", notificationId)
     .single();
 
@@ -36,6 +36,12 @@ export async function sendNotificationCore(
       .select("student_id")
       .eq("notification_id", notificationId);
     studentIds = (targets ?? []).map((t) => t.student_id);
+  } else if (notification.audience === "cohort" && notification.cohort_id) {
+    const { data: cohortStudents } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("cohort_id", notification.cohort_id);
+    studentIds = (cohortStudents ?? []).map((s) => s.id);
   }
 
   let subsQuery = supabase

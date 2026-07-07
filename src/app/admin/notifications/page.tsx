@@ -10,23 +10,27 @@ export default async function AdminNotificationsPage() {
   await requireAdmin();
   const supabase = await createClient();
 
-  const [{ data: students }, { count: deviceCount }, { data: notifications }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, email, full_name")
-      .eq("role", "student")
-      .eq("status", "active")
-      .order("email", { ascending: true }),
-    supabase
-      .from("push_subscriptions")
-      .select("id", { count: "exact", head: true })
-      .eq("is_active", true),
-    supabase
-      .from("notifications")
-      .select("id, title, message, audience, status, scheduled_at, sent_at, stats, error_message")
-      .order("created_at", { ascending: false })
-      .limit(30),
-  ]);
+  const [{ data: students }, { data: cohorts }, { count: deviceCount }, { data: notifications }] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, email, full_name")
+        .eq("role", "student")
+        .eq("status", "active")
+        .order("email", { ascending: true }),
+      supabase.from("cohorts").select("id, name").order("name", { ascending: true }),
+      supabase
+        .from("push_subscriptions")
+        .select("id", { count: "exact", head: true })
+        .eq("is_active", true),
+      supabase
+        .from("notifications")
+        .select("id, title, message, audience, cohort_id, status, scheduled_at, sent_at, stats, error_message")
+        .order("created_at", { ascending: false })
+        .limit(30),
+    ]);
+
+  const cohortNameById = new Map((cohorts ?? []).map((c) => [c.id, c.name]));
 
   return (
     <div className="flex flex-col gap-6 px-4 py-6">
@@ -36,7 +40,7 @@ export default async function AdminNotificationsPage() {
       </div>
 
       <Card>
-        <ComposeForm students={students ?? []} />
+        <ComposeForm cohorts={cohorts ?? []} students={students ?? []} />
       </Card>
 
       <div className="flex flex-col gap-3">
@@ -51,7 +55,9 @@ export default async function AdminNotificationsPage() {
                 <StatusBadge status={n.status} />
               </div>
               <p className="mt-2 text-xs text-muted">
-                {n.audience === "all" ? "Everyone" : "Selected students"}
+                {n.audience === "all" && "Everyone"}
+                {n.audience === "cohort" && `Cohort: ${cohortNameById.get(n.cohort_id ?? "") ?? "Unknown"}`}
+                {n.audience === "selected" && "Selected students"}
                 {n.scheduled_at && ` · Scheduled for ${new Date(n.scheduled_at).toLocaleString()}`}
                 {n.sent_at && ` · Sent ${new Date(n.sent_at).toLocaleString()}`}
               </p>

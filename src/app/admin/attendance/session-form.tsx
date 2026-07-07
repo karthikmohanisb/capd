@@ -2,11 +2,29 @@
 
 import { useActionState, useRef, useEffect } from "react";
 import { createSession, type ActionState } from "@/lib/attendance/actions";
+import { AudiencePicker } from "@/components/audience-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FormError } from "@/components/ui/field";
 
-export function SessionForm() {
+interface Cohort {
+  id: string;
+  name: string;
+}
+
+interface StudentOption {
+  id: string;
+  email: string;
+  full_name: string | null;
+}
+
+export function SessionForm({
+  cohorts,
+  students,
+}: {
+  cohorts: Cohort[];
+  students: StudentOption[];
+}) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     createSession,
     undefined
@@ -39,6 +57,8 @@ export function SessionForm() {
           defaultValue={45}
         />
       </Field>
+
+      <AudiencePicker cohorts={cohorts} students={students} />
 
       <FormError message={state?.error} />
 

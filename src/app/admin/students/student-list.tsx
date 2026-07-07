@@ -13,6 +13,7 @@ interface StudentRow {
   full_name: string | null;
   student_number: string | null;
   status: "active" | "disabled";
+  cohortName?: string | null;
 }
 
 export function StudentList({ students }: { students: StudentRow[] }) {
@@ -75,6 +76,9 @@ export function StudentList({ students }: { students: StudentRow[] }) {
               <p className="text-sm text-muted">{student.email}</p>
               {student.student_number && (
                 <p className="text-xs text-muted">#{student.student_number}</p>
+              )}
+              {student.cohortName && (
+                <p className="text-xs text-muted">{student.cohortName}</p>
               )}
             </div>
             {student.status === "disabled" && <Badge tone="danger">Disabled</Badge>}

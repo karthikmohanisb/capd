@@ -10,11 +10,22 @@ export default async function AdminAttendancePage() {
   await requireAdmin();
   const supabase = await createClient();
 
-  const { data: sessions } = await supabase
-    .from("attendance_sessions")
-    .select("id, title, description, status, created_at")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const [{ data: sessions }, { data: cohorts }, { data: students }] = await Promise.all([
+    supabase
+      .from("attendance_sessions")
+      .select("id, title, description, status, audience_type, cohort_id, created_at")
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase.from("cohorts").select("id, name").order("name", { ascending: true }),
+    supabase
+      .from("profiles")
+      .select("id, email, full_name")
+      .eq("role", "student")
+      .eq("status", "active")
+      .order("email", { ascending: true }),
+  ]);
+
+  const cohortNameById = new Map((cohorts ?? []).map((c) => [c.id, c.name]));
 
   return (
     <div className="flex flex-col gap-6 px-4 py-6">
@@ -24,7 +35,7 @@ export default async function AdminAttendancePage() {
       </div>
 
       <Card>
-        <SessionForm />
+        <SessionForm cohorts={cohorts ?? []} students={students ?? []} />
       </Card>
 
       <div className="flex flex-col gap-3">
@@ -42,6 +53,12 @@ export default async function AdminAttendancePage() {
                   {session.description && (
                     <p className="mt-0.5 text-sm text-muted">{session.description}</p>
                   )}
+                  <p className="mt-0.5 text-xs text-muted">
+                    {session.audience_type === "all" && "Everyone"}
+                    {session.audience_type === "cohort" &&
+                      `Cohort: ${cohortNameById.get(session.cohort_id ?? "") ?? "Unknown"}`}
+                    {session.audience_type === "custom" && "Custom list"}
+                  </p>
                 </div>
                 <StatusBadge status={session.status} />
               </div>
