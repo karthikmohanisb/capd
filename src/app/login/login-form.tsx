@@ -22,7 +22,7 @@ export function LoginForm() {
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="you@institution.edu"
+            placeholder="you@isb.edu"
             required
           />
         </Field>
