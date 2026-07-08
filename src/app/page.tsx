@@ -12,5 +12,5 @@ export default async function Home() {
     redirect("/set-pin");
   }
 
-  redirect(profile.role === "admin" ? "/admin" : "/attendance");
+  redirect(profile.role === "admin" ? "/admin" : "/events");
 }
