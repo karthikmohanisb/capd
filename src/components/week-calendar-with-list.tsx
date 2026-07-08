@@ -15,9 +15,14 @@ interface Event {
 interface WeekCalendarWithListProps {
   events: Event[];
   onEventClick: (eventId: string) => void;
+  onCreateEvent?: (date: Date) => void;
 }
 
-export function WeekCalendarWithList({ events, onEventClick }: WeekCalendarWithListProps) {
+export function WeekCalendarWithList({
+  events,
+  onEventClick,
+  onCreateEvent,
+}: WeekCalendarWithListProps) {
   const [weekStart, setWeekStart] = useState(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -26,7 +31,7 @@ export function WeekCalendarWithList({ events, onEventClick }: WeekCalendarWithL
     return today;
   });
 
-  const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString());
+  const [selectedDateKey, setSelectedDateKey] = useState(new Date().toLocaleDateString());
 
   const days = useMemo(() => {
     const result = [];
@@ -56,7 +61,7 @@ export function WeekCalendarWithList({ events, onEventClick }: WeekCalendarWithL
     return map;
   }, [events]);
 
-  const selectedDayEvents = eventsByDate[selectedDate] || [];
+  const selectedDayEvents = eventsByDate[selectedDateKey] || [];
 
   const prevWeek = () => {
     const newDate = new Date(weekStart);
@@ -76,13 +81,13 @@ export function WeekCalendarWithList({ events, onEventClick }: WeekCalendarWithL
     const day = today.getDay();
     today.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
     setWeekStart(today);
-    setSelectedDate(new Date().toLocaleDateString());
+    setSelectedDateKey(today.toLocaleDateString());
   };
 
   const isToday = (date: Date) => date.toLocaleDateString() === new Date().toLocaleDateString();
-  const isSelected = (date: Date) => date.toLocaleDateString() === selectedDate;
+  const isSelected = (date: Date) => date.toLocaleDateString() === selectedDateKey;
 
-  const selectedDateObj = new Date(selectedDate);
+  const selectedDateObj = new Date(selectedDateKey);
   const dayName = selectedDateObj.toLocaleDateString("en-US", { weekday: "long" });
   const monthDay = selectedDateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
@@ -121,7 +126,7 @@ export function WeekCalendarWithList({ events, onEventClick }: WeekCalendarWithL
           return (
             <button
               key={idx}
-              onClick={() => setSelectedDate(dateKey)}
+              onClick={() => setSelectedDateKey(dateKey)}
               className={`flex flex-col items-center py-2 rounded text-xs transition ${
                 selected
                   ? "bg-blue-600 text-white font-semibold"
@@ -144,12 +149,26 @@ export function WeekCalendarWithList({ events, onEventClick }: WeekCalendarWithL
 
       {/* Selected Day Header */}
       <div className="border-t pt-4">
-        <h3 className="text-base font-semibold text-foreground">
-          {dayName}, {monthDay}
-        </h3>
-        <p className="text-xs text-gray-500">
-          {selectedDayEvents.length} event{selectedDayEvents.length !== 1 ? "s" : ""}
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-foreground">
+              {dayName}, {monthDay}
+            </h3>
+            <p className="text-xs text-gray-500">
+              {selectedDayEvents.length} event{selectedDayEvents.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <Button
+            onClick={() => {
+              const selectedDate = new Date(selectedDateObj);
+              selectedDate.setHours(10, 0, 0, 0);
+              onCreateEvent?.(selectedDate);
+            }}
+            className="px-3 py-2 text-xs"
+          >
+            + Create
+          </Button>
+        </div>
       </div>
 
       {/* Events List */}

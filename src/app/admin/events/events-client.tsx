@@ -63,7 +63,11 @@ export function AdminEventsClient({
         <h1 className="text-xl font-bold text-foreground">Events</h1>
       </div>
 
-      <WeekCalendarWithList events={events} onEventClick={handleEventClick} />
+      <WeekCalendarWithList
+        events={events}
+        onEventClick={handleEventClick}
+        onCreateEvent={(date) => setCreateDate(date)}
+      />
 
       <EventDetailModal
         isOpen={!!selectedEvent}
