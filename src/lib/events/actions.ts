@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { sendNotificationCore } from "@/lib/notifications/send";
 
-export type ActionState = { error?: string; success?: string } | undefined;
+export type ActionState = { error?: string; success?: string; event?: any } | undefined;
 
 const TITLE_MAX = 120;
 
@@ -109,6 +109,7 @@ export async function createEvent(
     success: attendanceSessionId
       ? "Event created as a draft, with attendance ready to open."
       : "Event created as a draft.",
+    event,
   };
 }
 

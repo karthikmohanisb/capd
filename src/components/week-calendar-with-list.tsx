@@ -31,7 +31,13 @@ export function WeekCalendarWithList({
     return today;
   });
 
-  const [selectedDateKey, setSelectedDateKey] = useState(new Date().toLocaleDateString());
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
+
+  const selectedDateKey = selectedDate.toLocaleDateString();
 
   const days = useMemo(() => {
     const result = [];
@@ -79,17 +85,17 @@ export function WeekCalendarWithList({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const day = today.getDay();
-    today.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
-    setWeekStart(today);
-    setSelectedDateKey(today.toLocaleDateString());
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+    setWeekStart(weekStart);
+    setSelectedDate(today);
   };
 
   const isToday = (date: Date) => date.toLocaleDateString() === new Date().toLocaleDateString();
   const isSelected = (date: Date) => date.toLocaleDateString() === selectedDateKey;
 
-  const selectedDateObj = new Date(selectedDateKey);
-  const dayName = selectedDateObj.toLocaleDateString("en-US", { weekday: "long" });
-  const monthDay = selectedDateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
+  const monthDay = selectedDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
   return (
     <div className="flex flex-col gap-4">
@@ -126,7 +132,7 @@ export function WeekCalendarWithList({
           return (
             <button
               key={idx}
-              onClick={() => setSelectedDateKey(dateKey)}
+              onClick={() => setSelectedDate(date)}
               className={`flex flex-col items-center py-2 rounded text-xs transition ${
                 selected
                   ? "bg-blue-600 text-white font-semibold"
@@ -160,9 +166,9 @@ export function WeekCalendarWithList({
           </div>
           <Button
             onClick={() => {
-              const selectedDate = new Date(selectedDateObj);
-              selectedDate.setHours(10, 0, 0, 0);
-              onCreateEvent?.(selectedDate);
+              const eventDate = new Date(selectedDate);
+              eventDate.setHours(10, 0, 0, 0);
+              onCreateEvent?.(eventDate);
             }}
             className="px-3 py-2 text-xs"
           >

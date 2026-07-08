@@ -52,8 +52,10 @@ export function AdminEventsClient({
   };
 
   const handleCreateEvent = async (formData: FormData) => {
-    await createEvent(undefined, formData);
-    // Optionally refresh events after creation
+    const result = await createEvent(undefined, formData);
+    if (result?.event) {
+      setEvents((prevEvents) => [...prevEvents, result.event]);
+    }
     setCreateDate(null);
   };
 
