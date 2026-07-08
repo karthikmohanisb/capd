@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AttendanceActions } from "@/app/admin/events/attendance-actions";
-import { deleteEvent } from "@/lib/events/actions";
+import { deleteEvent, ensureEventHasSession } from "@/lib/events/actions";
 import { generateAttendanceCSV, downloadCSV } from "@/lib/attendance/export";
 
 interface EventDetailModalProps {
@@ -44,6 +44,16 @@ export function EventDetailModal({
         onClose();
       });
     }
+  };
+
+  const handleCreateMissingSession = async () => {
+    startTransition(async () => {
+      const result = await ensureEventHasSession(event.id);
+      if (result?.session) {
+        setStatus(result.session.status);
+        onRefresh?.();
+      }
+    });
   };
 
   const handleExportCSV = () => {
@@ -96,7 +106,23 @@ export function EventDetailModal({
           </div>
 
           {/* Manage Attendance Section */}
-          {event.attendance_session_id && sessionData && status && (
+          {!event.attendance_session_id ? (
+            <div className="border-t pt-6">
+              <h3 className="text-base font-semibold text-foreground mb-4">Attendance</h3>
+              <p className="text-sm text-gray-600 mb-4">This event doesn't have an attendance session.</p>
+              {event.event_at ? (
+                <Button
+                  onClick={handleCreateMissingSession}
+                  loading={pending}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  Create Attendance Session
+                </Button>
+              ) : (
+                <p className="text-sm text-gray-500">Set a date first to enable attendance.</p>
+              )}
+            </div>
+          ) : sessionData && status ? (
             <div className="border-t pt-6">
               <h3 className="text-base font-semibold text-foreground mb-4">Manage Attendance</h3>
 
@@ -127,7 +153,7 @@ export function EventDetailModal({
                 </div>
               )}
             </div>
-          )}
+          ) : null}
 
           {/* Edit Button */}
           <div className="border-t pt-6">

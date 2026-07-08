@@ -18,6 +18,9 @@ interface StudentCalendarProps {
 }
 
 export function StudentCalendar({ events, onEventClick }: StudentCalendarProps) {
+  const formatDateKey = (date: Date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
   const [weekStart, setWeekStart] = useState(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -26,7 +29,7 @@ export function StudentCalendar({ events, onEventClick }: StudentCalendarProps) 
     return today;
   });
 
-  const [selectedDateKey, setSelectedDateKey] = useState(new Date().toLocaleDateString());
+  const [selectedDateKey, setSelectedDateKey] = useState(formatDateKey(new Date()));
 
   const days = useMemo(() => {
     const result = [];
@@ -42,7 +45,7 @@ export function StudentCalendar({ events, onEventClick }: StudentCalendarProps) 
     const map: Record<string, Event[]> = {};
     events.forEach((event) => {
       if (!event.event_at) return;
-      const dateKey = new Date(event.event_at).toLocaleDateString();
+      const dateKey = formatDateKey(new Date(event.event_at));
       if (!map[dateKey]) map[dateKey] = [];
       map[dateKey].push(event);
     });
@@ -53,7 +56,7 @@ export function StudentCalendar({ events, onEventClick }: StudentCalendarProps) 
       });
     });
     return map;
-  }, [events]);
+  }, [events, formatDateKey]);
 
   const selectedDayEvents = eventsByDate[selectedDateKey] || [];
 
@@ -75,11 +78,11 @@ export function StudentCalendar({ events, onEventClick }: StudentCalendarProps) 
     const day = today.getDay();
     today.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
     setWeekStart(today);
-    setSelectedDateKey(today.toLocaleDateString());
+    setSelectedDateKey(formatDateKey(today));
   };
 
-  const isToday = (date: Date) => date.toLocaleDateString() === new Date().toLocaleDateString();
-  const isSelected = (date: Date) => date.toLocaleDateString() === selectedDateKey;
+  const isToday = (date: Date) => formatDateKey(date) === formatDateKey(new Date());
+  const isSelected = (date: Date) => formatDateKey(date) === selectedDateKey;
 
   const selectedDateObj = new Date(selectedDateKey);
   const dayName = selectedDateObj.toLocaleDateString("en-US", { weekday: "long" });
@@ -120,7 +123,7 @@ export function StudentCalendar({ events, onEventClick }: StudentCalendarProps) 
           return (
             <button
               key={idx}
-              onClick={() => setSelectedDateKey(dateKey)}
+              onClick={() => setSelectedDateKey(formatDateKey(date))}
               className={`flex flex-col items-center py-2 rounded text-xs transition ${
                 selected
                   ? "bg-blue-600 text-white font-semibold"

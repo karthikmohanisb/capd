@@ -2,6 +2,8 @@ import { requireAdmin } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { AdminEventsClient } from "./events-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminEventsPage() {
   await requireAdmin();
   const supabase = await createClient();

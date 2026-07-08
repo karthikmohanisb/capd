@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireAdmin } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { sendNotificationCore } from "@/lib/notifications/send";
 import type { Database } from "@/types/database";
 import type { Profile } from "@/lib/auth/dal";
@@ -183,6 +184,138 @@ export async function createEvent(
     event,
     session: attendanceSession,
   };
+}
+
+export async function repairAllBrokenEvents() {
+  const admin = await requireAdmin();
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  // Find all events with dates but missing or broken sessions
+  const { data: events } = await supabase
+    .from("events")
+    .select("id, title, description, event_at, attendance_session_id, created_by, audience_type, cohort_id")
+    .eq("status", "published")
+    .not("event_at", "is", null);
+
+  let fixed = 0;
+
+  for (const event of events ?? []) {
+    // If event has a session_id, verify it exists
+    if (event.attendance_session_id) {
+      const { data: session } = await adminClient
+        .from("attendance_sessions")
+        .select("id")
+        .eq("id", event.attendance_session_id)
+        .maybeSingle();
+
+      if (!session) {
+        // Session doesn't exist, create new one
+        const { data: newSession } = await supabase
+          .from("attendance_sessions")
+          .insert({
+            title: event.title,
+            description: event.description || null,
+            created_by: event.created_by,
+            code_interval_seconds: 45,
+            audience_type: event.audience_type,
+            cohort_id: event.cohort_id,
+          })
+          .select("id")
+          .single();
+
+        if (newSession) {
+          await supabase
+            .from("events")
+            .update({ attendance_session_id: newSession.id })
+            .eq("id", event.id);
+          fixed++;
+        }
+      }
+    } else {
+      // No session at all, create one
+      const { data: newSession } = await supabase
+        .from("attendance_sessions")
+        .insert({
+          title: event.title,
+          description: event.description || null,
+          created_by: event.created_by,
+          code_interval_seconds: 45,
+          audience_type: event.audience_type,
+          cohort_id: event.cohort_id,
+        })
+        .select("id")
+        .single();
+
+      if (newSession) {
+        await supabase
+          .from("events")
+          .update({ attendance_session_id: newSession.id })
+          .eq("id", event.id);
+        fixed++;
+      }
+    }
+  }
+
+  revalidatePath("/admin/events");
+  revalidatePath("/events");
+  return { success: `Fixed ${fixed} event(s) with missing or broken sessions.` };
+}
+
+export async function ensureEventHasSession(eventId: string) {
+  const admin = await requireAdmin();
+  const supabase = await createClient();
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("id, title, description, event_at, attendance_session_id, created_by, audience_type, cohort_id")
+    .eq("id", eventId)
+    .single();
+
+  if (!event) {
+    return { error: "Event not found." };
+  }
+
+  if (event.attendance_session_id) {
+    return { success: "Event already has a session.", sessionId: event.attendance_session_id };
+  }
+
+  if (!event.event_at) {
+    return { error: "Cannot create session for event without a date." };
+  }
+
+  // Create missing session
+  const { data: session, error: sessionError } = await supabase
+    .from("attendance_sessions")
+    .insert({
+      title: event.title,
+      description: event.description || null,
+      created_by: event.created_by,
+      code_interval_seconds: 45,
+      audience_type: event.audience_type,
+      cohort_id: event.cohort_id,
+    })
+    .select("id, status, session_secret, code_interval_seconds")
+    .single();
+
+  if (sessionError || !session) {
+    return { error: "Could not create attendance session." };
+  }
+
+  // Link session to event
+  const { error: updateError } = await supabase
+    .from("events")
+    .update({ attendance_session_id: session.id })
+    .eq("id", eventId);
+
+  if (updateError) {
+    return { error: "Could not link session to event." };
+  }
+
+  revalidatePath("/admin/events");
+  revalidatePath("/events");
+
+  return { success: "Session created and linked.", sessionId: session.id, session };
 }
 
 export async function publishEvent(eventId: string, notifyStudents: boolean) {

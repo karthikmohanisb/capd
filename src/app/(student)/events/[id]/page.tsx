@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CodeForm } from "@/components/code-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function EventDetailPage({
   params,
 }: {

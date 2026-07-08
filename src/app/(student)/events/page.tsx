@@ -2,6 +2,8 @@ import { requireStudent } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { StudentEventsClient } from "./client";
 
+export const dynamic = "force-dynamic";
+
 export default async function EventsPage() {
   await requireStudent();
   const supabase = await createClient();
