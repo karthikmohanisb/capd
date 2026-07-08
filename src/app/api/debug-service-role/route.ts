@@ -11,10 +11,16 @@ export async function GET(request: Request) {
     const admin = createAdminClient();
     const { data, error } = await admin
       .from("attendance_sessions")
-      .select("id, status")
-      .limit(1);
+      .select("id, status, session_secret, code_interval_seconds")
+      .eq("id", "0b7e84e5-6e22-45c0-b43a-5dc4de4a99f2")
+      .single();
 
-    return NextResponse.json({ ok: !error, data, error: error?.message ?? null });
+    return NextResponse.json({
+      ok: !error,
+      found: !!data,
+      status: data?.status ?? null,
+      error: error?.message ?? null,
+    });
   } catch (e) {
     return NextResponse.json({ ok: false, thrown: String(e) });
   }
