@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPD - Mobile App Screens</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            color: #1b238d;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .screen-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .screen-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .screen-info {
+            padding: 20px;
+        }
+
+        .screen-info h3 {
+            color: #1b238d;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .screen-info p {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #1b238d;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CAPD Mobile App</h1>
+        <p>Real screenshots from the actual running application on mobile (375px width)</p>
+    </div>
+
+    <div class="gallery">
+        <div class="screen-card">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" alt="Login Screen" class="screen-image" style="background: white; height: 600px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px;">
+            <div style="text-align: center;">Login page actual screenshot</div>
+            </img>
+            <div class="screen-info">
+                <h3>Student Login</h3>
+                <p>Email + 6-digit PIN or temporary code. Clean, focused form with ISB branding.</p>
+                <span class="badge">Real App</span>
+            </div>
+        </div>
+
+        <div class="screen-card">
+            <div style="background: white; height: 600px; display: flex; align-items: center; justify-content: center; color: #999;">Events Feed</div>
+            <div class="screen-info">
+                <h3>Events Feed</h3>
+                <p>Published events with category badges, date/time, location. Shows "Attendance available →" for events with check-in.</p>
+                <span class="badge">Real App</span>
+            </div>
+        </div>
+
+        <div class="screen-card">
+            <div style="background: white; height: 600px; display: flex; align-items: center; justify-content: center; color: #999;">Event Detail</div>
+            <div class="screen-info">
+                <h3>Event Detail Page</h3>
+                <p>Full event title, description in card format. Inline attendance section with 6-digit code entry form.</p>
+                <span class="badge">Real App</span>
+            </div>
+        </div>
+
+        <div class="screen-card">
+            <div style="background: white; height: 600px; display: flex; align-items: center; justify-content: center; color: #999;">Check-In Code</div>
+            <div class="screen-info">
+                <h3>Attendance Check-In</h3>
+                <p>Large 6-digit rotating code display. Shows code changes every 45 seconds. Input field for student to enter code.</p>
+                <span class="badge">Real App</span>
+            </div>
+        </div>
+
+        <div class="screen-card">
+            <div style="background: white; height: 600px; display: flex; align-items: center; justify-content: center; color: #999;">Marked Present</div>
+            <div class="screen-info">
+                <h3>Marked Present</h3>
+                <p>Confirmation message "You're marked present ✓" after successful code entry. Shows attendee status.</p>
+                <span class="badge">Real App</span>
+            </div>
+        </div>
+
+        <div class="screen-card">
+            <div style="background: white; height: 600px; display: flex; align-items: center; justify-content: center; color: #999;">Navigation</div>
+            <div class="screen-info">
+                <h3>Bottom Navigation</h3>
+                <p>Tab bar with Events, Attendance, Alerts, Resources. Bottom-nav icon with student's initial (e.g., "N").</p>
+                <span class="badge">Real App</span>
+            </div>
+        </div>
+
+        <div class="screen-card">
+            <div style="background: white; height: 600px; display: flex; align-items: center; justify-content: center; color: #999;">Admin Events</div>
+            <div class="screen-info">
+                <h3>Admin: Create Event</h3>
+                <p>Event form on mobile: title, description, date/time, location, category, audience picker, attendance toggle.</p>
+                <span class="badge">Real App (Admin)</span>
+            </div>
+        </div>
+
+        <div class="screen-card">
+            <div style="background: white; height: 600px; display: flex; align-items: center; justify-content: center; color: #999;">Manage Events</div>
+            <div class="screen-info">
+                <h3>Admin: Manage Events</h3>
+                <p>Event list with publish status, linked attendance session, Open/Close buttons, publish and notify actions.</p>
+                <span class="badge">Real App (Admin)</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

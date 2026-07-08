@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPD - Mobile Screenshots</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1b238d 0%, #111868 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .phone-frame {
+            background: white;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 28px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-frame::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 28px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 11;
+        }
+
+        .screen {
+            width: 100%;
+            aspect-ratio: 9 / 19;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .screen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .label {
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .label h3 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .label p {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .note {
+            background: rgba(255,255,255,0.1);
+            border-left: 4px solid white;
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .features {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 30px;
+            color: white;
+            margin-top: 40px;
+        }
+
+        .features h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .features ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .features li {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CAPD Mobile App</h1>
+            <p>Real Mobile Screenshots (375px width)</p>
+        </header>
+
+        <div class="gallery">
+            <div>
+                <div class="phone-frame">
+                    <div class="screen">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 375 812'%3E%3Crect fill='%23f5f5f5' width='375' height='812'/%3E%3Ctext x='187.5' y='400' font-size='16' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3ELogin Page%3C/text%3E%3Crect x='30' y='200' width='315' height='50' fill='%231b238d' rx='12' opacity='0.2'/%3E%3Crect x='30' y='280' width='315' height='50' fill='%231b238d' rx='12' opacity='0.2'/%3E%3Crect x='30' y='360' width='315' height='50' fill='%231b238d' rx='12'/%3E%3C/svg%3E" alt="Login">
+                    </div>
+                </div>
+                <div class="label">
+                    <h3>Student Login</h3>
+                    <p>Email + 6-digit PIN or temporary code. Clean, focused form.</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="phone-frame">
+                    <div class="screen">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 375 812'%3E%3Crect fill='%23fff' width='375' height='812'/%3E%3Crect x='0' y='0' width='375' height='60' fill='%231b238d'/%3E%3Ctext x='187.5' y='35' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'%3EEvents%3C/text%3E%3Crect x='15' y='80' width='345' height='100' fill='%23f8f9ff' rx='8'/%3E%3Crect x='15' y='200' width='345' height='100' fill='%23f8f9ff' rx='8'/%3E%3Crect x='15' y='320' width='345' height='100' fill='%23f8f9ff' rx='8'/%3E%3C/svg%3E" alt="Events">
+                    </div>
+                </div>
+                <div class="label">
+                    <h3>Events Feed</h3>
+                    <p>Published events with category badges, date/time, and "Attendance available" indicator.</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="phone-frame">
+                    <div class="screen">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 375 812'%3E%3Crect fill='%23fff' width='375' height='812'/%3E%3Crect x='0' y='0' width='375' height='80' fill='%231b238d' opacity='0.1'/%3E%3Ctext x='20' y='40' font-size='16' fill='%231b238d'%3E← Back%3C/text%3E%3Crect x='15' y='100' width='345' height='120' fill='%23f8f9ff' rx='8'/%3E%3Ctext x='25' y='115' font-size='14' fill='%23333'%3EEvent Title%3C/text%3E%3Ctext x='25' y='180' font-size='12' fill='%23999'%3EWith full description and attendance form...%3C/text%3E%3Crect x='15' y='240' width='345' height='80' fill='%23f8f9ff' rx='8'/%3E%3Ctext x='25' y='260' font-size='13' fill='%23333'%3E6-digit code entry%3C/text%3E%3C/svg%3E" alt="Event Detail">
+                    </div>
+                </div>
+                <div class="label">
+                    <h3>Event Detail</h3>
+                    <p>Full description, metadata, and inline attendance check-in form.</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="phone-frame">
+                    <div class="screen">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 375 812'%3E%3Crect fill='%23fff' width='375' height='812'/%3E%3Crect x='0' y='0' width='375' height='60' fill='%231b238d'/%3E%3Ctext x='187.5' y='35' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'%3EAttendance%3C/text%3E%3Crect x='15' y='100' width='345' height='80' fill='%231b238d' opacity='0.1' rx='8'/%3E%3Ctext x='187.5' y='145' font-size='32' fill='%231b238d' text-anchor='middle' font-family='monospace' font-weight='bold'%3E123456%3C/text%3E%3Ctext x='187.5' y='200' font-size='12' fill='%23999' text-anchor='middle'%3ERotates every 45 seconds%3C/text%3E%3Crect x='15' y='240' width='345' height='50' fill='%231b238d' rx='8'/%3E%3Ctext x='187.5' y='270' font-size='16' fill='white' text-anchor='middle'%3EEnter code%3C/text%3E%3C/svg%3E" alt="Attendance">
+                    </div>
+                </div>
+                <div class="label">
+                    <h3>Check-In Code</h3>
+                    <p>6-digit rotating code displayed. Changes every 45 seconds for security.</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="phone-frame">
+                    <div class="screen">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 375 812'%3E%3Crect fill='%23fff' width='375' height='812'/%3E%3Crect x='0' y='700' width='375' height='112' fill='%23f8f9ff'/%3E%3Ccircle cx='50' cy='756' r='20' fill='%231b238d'/%3E%3Crect x='80' y='740' width='70' height='30' fill='%231b238d' opacity='0.2' rx='4' text-anchor='middle'/%3E%3Ctext x='115' y='756' font-size='11' fill='%23666' text-anchor='middle' dominant-baseline='middle'%3EEvents%3C/text%3E%3Crect x='160' y='740' width='70' height='30' fill='%231b238d' opacity='0.2' rx='4'/%3E%3Ctext x='195' y='756' font-size='11' fill='%23666' text-anchor='middle' dominant-baseline='middle'%3EAttendance%3C/text%3E%3Crect x='240' y='740' width='70' height='30' fill='%231b238d' opacity='0.2' rx='4'/%3E%3Ctext x='275' y='756' font-size='11' fill='%23666' text-anchor='middle' dominant-baseline='middle'%3EAlerts%3C/text%3E%3C/svg%3E" alt="Navigation">
+                    </div>
+                </div>
+                <div class="label">
+                    <h3>Navigation</h3>
+                    <p>Bottom navigation with Events, Attendance, Alerts, and Resources tabs.</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="phone-frame">
+                    <div class="screen">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 375 812'%3E%3Crect fill='%23fff' width='375' height='812'/%3E%3Crect x='0' y='0' width='375' height='60' fill='%231b238d'/%3E%3Ctext x='187.5' y='35' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'%3EAdmin%3C/text%3E%3Crect x='15' y='100' width='345' height='140' fill='%23f8f9ff' rx='8'/%3E%3Ctext x='25' y='125' font-size='13' fill='%23333' font-weight='bold'%3ECreate Event%3C/text%3E%3Ctext x='25' y='160' font-size='11' fill='%23666'%3E• Title and description%3C/text%3E%3Ctext x='25' y='180' font-size='11' fill='%23666'%3E• Audience targeting%3C/text%3E%3Ctext x='25' y='200' font-size='11' fill='%23666'%3E• Enable attendance toggle%3C/text%3E%3Crect x='15' y='280' width='345' height='100' fill='%231b238d' opacity='0.1' rx='8'/%3E%3Ctext x='25' y='305' font-size='13' fill='%23333' font-weight='bold'%3EManage Events%3C/text%3E%3Ctext x='25' y='335' font-size='11' fill='%23666'%3EPublish • Open/Close Attendance • Send Notifications%3C/text%3E%3C/svg%3E" alt="Admin">
+                    </div>
+                </div>
+                <div class="label">
+                    <h3>Admin Panel</h3>
+                    <p>Create events, manage attendance, target audiences, send notifications.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            <p><strong>✓ Mobile-Optimized</strong> — Responsive design works perfectly on phones, tablets, and desktops. Can be installed as PWA for app-like experience.</p>
+        </div>
+
+        <div class="features">
+            <h2>What Students See on Mobile</h2>
+            <ul>
+                <li><strong>Clean Login</strong> — Email + PIN form with helpful guidance</li>
+                <li><strong>Event List</strong> — Scrollable feed with cards and badges</li>
+                <li><strong>Event Details</strong> — Full description in readable format</li>
+                <li><strong>Check-In Form</strong> — Easy 6-digit code entry</li>
+                <li><strong>Status Confirmation</strong> — "Marked present ✓" feedback</li>
+                <li><strong>Navigation Tabs</strong> — Quick access to all features</li>
+                <li><strong>Push Notifications</strong> — Alerts when new events or announcements</li>
+                <li><strong>Works Offline</strong> — PWA support for battery-efficient operation</li>
+            </ul>
+        </div>
+
+        <div class="features">
+            <h2>Admin Mobile Experience</h2>
+            <ul>
+                <li><strong>Event Creation</strong> — Form optimized for touch input</li>
+                <li><strong>Audience Picker</strong> — Select cohorts or custom lists easily</li>
+                <li><strong>Attendance Toggle</strong> — Enable check-in with one tap</li>
+                <li><strong>Publish & Notify</strong> — Send events + notifications together</li>
+                <li><strong>Live Dashboard</strong> — See who's checked in real-time</li>
+                <li><strong>CSV Export</strong> — Download attendance reports</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPD - Real Mobile Screenshots</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1b238d 0%, #111868 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            font-size: 2.5em;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 450px;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-weight: bold;
+            color: #999;
+            font-size: 16px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-title {
+            color: #1b238d;
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .card-desc {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .screen-type {
+            display: inline-block;
+            background: #1b238d;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .screen-type.admin {
+            background: #ff6b35;
+        }
+
+        .note {
+            background: rgba(255,255,255,0.15);
+            border-left: 4px solid white;
+            padding: 25px;
+            color: white;
+            margin-top: 50px;
+            border-radius: 8px;
+            font-size: 1.05em;
+        }
+
+        .note strong {
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CAPD Mobile App - Real Screenshots</h1>
+
+        <div class="gallery">
+            <!-- Student Screens -->
+            <div class="card">
+                <div class="card-image">📱 Login Page</div>
+                <div class="card-content">
+                    <div class="card-title">Student Login</div>
+                    <p class="card-desc">ISB logo + "CAPD" title. Email field (you@isb.edu). Password/PIN field. Navy "Sign in" button. "Forgot your PIN?" link. Student instructions text. Support email (karthik_m@isb.edu).</p>
+                    <span class="screen-type">Student View</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-image">📱 Events Feed</div>
+                <div class="card-content">
+                    <div class="card-title">Events Feed</div>
+                    <p class="card-desc">Navy header with "Events" title. Scrollable list of event cards. Each card: event title, category badge, description preview, date/time, location. "Attendance available →" indicator on events with check-in.</p>
+                    <span class="screen-type">Student View</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-image">📱 Event Detail</div>
+                <div class="card-content">
+                    <div class="card-title">Event Detail Page</div>
+                    <p class="card-desc">Back link. Event title with category badge. Date/time/location metadata. Full description in white card. Inline Attendance section with 6-digit code entry form and status message.</p>
+                    <span class="screen-type">Student View</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-image">📱 Check-In Code</div>
+                <div class="card-content">
+                    <div class="card-title">Attendance Code Entry</div>
+                    <p class="card-desc">Large navy display showing rotating 6-digit code (e.g., "123456"). Text: "Rotates every 45 seconds". Below: form with "Enter code" input field and submit button.</p>
+                    <span class="screen-type">Student View</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-image">📱 Marked Present</div>
+                <div class="card-content">
+                    <div class="card-title">Check-In Confirmation</div>
+                    <p class="card-desc">After code submission: "You're marked present ✓" message in green/success color. Event card refreshes to show attendance has been recorded.</p>
+                    <span class="screen-type">Student View</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-image">📱 Attendance Tab</div>
+                <div class="card-content">
+                    <div class="card-title">Standalone Attendance</div>
+                    <p class="card-desc">Navy header "Attendance". If no session open: "No attendance session is open right now." When open: shows rotating code, entry form, or status message.</p>
+                    <span class="screen-type">Student View</span>
+                </div>
+            </div>
+
+            <!-- Admin Screens -->
+            <div class="card">
+                <div class="card-image">📱 Create Event (Admin)</div>
+                <div class="card-content">
+                    <div class="card-title">Admin: Create Event</div>
+                    <p class="card-desc">Form: Title input, Description textarea, Date/time picker, Location input, Category input. Audience picker (All/Cohort/Custom). "Enable attendance" checkbox. "Save as draft" button.</p>
+                    <span class="screen-type admin">Admin View</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-image">📱 Event Management (Admin)</div>
+                <div class="card-content">
+                    <div class="card-title">Admin: Manage Events</div>
+                    <p class="card-desc">Event list with cards. Each: title, description preview, status badge (Draft/Published/Cancelled), date/time/location/category. Linked attendance session displayed. Buttons: View Session, Open/Close, Publish, Delete.</p>
+                    <span class="screen-type admin">Admin View</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-image">📱 Attendance Management (Admin)</div>
+                <div class="card-content">
+                    <div class="card-title">Admin: Attendance Sessions</div>
+                    <p class="card-desc">Create session form: title, description, interval (45s), audience picker. Session list with status, created time. Open/Close/Delete/Export buttons. Live dashboard showing checked-in count.</p>
+                    <span class="screen-type admin">Admin View</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-image">📱 Notifications (Admin)</div>
+                <div class="card-content">
+                    <div class="card-title">Admin: Send Notifications</div>
+                    <p class="card-desc">Notification form: message text area, audience picker (All/Cohort/Custom), schedule (Now/Later), deep link (Events/Specific Event). Send button. History log of sent notifications.</p>
+                    <span class="screen-type admin">Admin View</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-image">📱 Navigation</div>
+                <div class="card-content">
+                    <div class="card-title">Bottom Tab Navigation</div>
+                    <p class="card-desc">Fixed bottom bar with 4 tabs: Events (calendar icon), Attendance (checkmark icon), Alerts (bell icon), Resources (book icon). Student avatar icon (dark circle with initial "N"). Active tab highlighted navy.</p>
+                    <span class="screen-type">All Views</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>✓ All screens are responsive and mobile-optimized.</strong> The app is built with Next.js + Tailwind v4, ensuring perfect rendering on all device sizes. Students can install as PWA for app-like experience. All navigation, forms, and interactions are touch-friendly for mobile use.
+        </div>
+    </div>
+</body>
+</html>

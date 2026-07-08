@@ -1,0 +1,31 @@
+Hi Team,
+
+Meet CAPD — a mobile-first platform for attendance, events, and notifications.
+
+🎯 What it does:
+• Secure attendance with rotating 6-digit codes
+• Event management with full descriptions
+• Push notifications for all cohorts
+• Cohort-based data privacy
+
+🚀 Access it: https://capd.vercel.app
+
+📊 Full details in the attached presentation (20 slides with screenshots).
+
+---
+
+**Admin Access:**
+Email: SRIRAM_RAGHAVAN@ISB.EDU
+PIN: Admin@CAPD26
+
+Email: steven_paul@isb.edu
+PIN: Admin@CAPD26
+
+---
+
+**For Students:** Login with ISB email + 6-digit PIN (ask admin)
+**For Admins:** Use credentials above to access admin panel
+
+Let me know your feedback!
+
+—
