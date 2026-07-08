@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AttendanceActions } from "@/app/admin/events/attendance-actions";
@@ -27,6 +27,11 @@ export function EventDetailModal({
   onDelete,
 }: EventDetailModalProps) {
   const [pending, startTransition] = useTransition();
+  const [status, setStatus] = useState<"draft" | "open" | "closed" | undefined>(sessionData?.status);
+
+  useEffect(() => {
+    setStatus(sessionData?.status);
+  }, [sessionData?.status, event?.id]);
 
   if (!isOpen || !event) return null;
 
@@ -91,42 +96,35 @@ export function EventDetailModal({
           </div>
 
           {/* Manage Attendance Section */}
-          {event.attendance_session_id && sessionData && (
+          {event.attendance_session_id && sessionData && status && (
             <div className="border-t pt-6">
               <h3 className="text-base font-semibold text-foreground mb-4">Manage Attendance</h3>
 
-              {/* Export Button */}
-              {attendanceRecords.length === 0 ? (
-                <div className="text-center py-6">
-                  <p className="text-sm text-gray-500 mb-4">No active attendance session</p>
-                  <AttendanceActions
-                    sessionId={event.attendance_session_id}
-                    sessionStatus={sessionData.status}
-                    sessionSecret={sessionData.session_secret}
-                    codeInterval={sessionData.code_interval_seconds}
-                  />
+              {status === "draft" && (
+                <p className="text-sm text-gray-500 mb-4 text-center">No active attendance session</p>
+              )}
+
+              <AttendanceActions
+                sessionId={event.attendance_session_id}
+                sessionStatus={status}
+                sessionSecret={sessionData.session_secret}
+                codeInterval={sessionData.code_interval_seconds}
+                onStatusChange={setStatus}
+              />
+
+              {attendanceRecords.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-sm text-gray-600 mb-3">
+                    {attendanceRecords.length} student{attendanceRecords.length !== 1 ? "s" : ""} checked in
+                  </p>
+                  <Button
+                    onClick={handleExportCSV}
+                    className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
+                  >
+                    <Download className="h-4 w-4" />
+                    Export Attendance
+                  </Button>
                 </div>
-              ) : (
-                <>
-                  <AttendanceActions
-                    sessionId={event.attendance_session_id}
-                    sessionStatus={sessionData.status}
-                    sessionSecret={sessionData.session_secret}
-                    codeInterval={sessionData.code_interval_seconds}
-                  />
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm text-gray-600 mb-3">
-                      {attendanceRecords.length} student{attendanceRecords.length !== 1 ? "s" : ""} checked in
-                    </p>
-                    <Button
-                      onClick={handleExportCSV}
-                      className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
-                    >
-                      <Download className="h-4 w-4" />
-                      Export Attendance
-                    </Button>
-                  </div>
-                </>
               )}
             </div>
           )}

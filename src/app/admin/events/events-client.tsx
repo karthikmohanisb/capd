@@ -24,6 +24,7 @@ export function AdminEventsClient({
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [createDate, setCreateDate] = useState<Date | null>(null);
   const [events, setEvents] = useState(initialEvents);
+  const [sessions, setSessions] = useState(sessionDataById);
 
   const handleEventClick = useCallback(
     (eventId: string) => {
@@ -37,13 +38,13 @@ export function AdminEventsClient({
           ...event,
           cohort_name: cohortNameById[event.cohort_id],
           sessionData: event.attendance_session_id
-            ? sessionDataById[event.attendance_session_id]
+            ? sessions[event.attendance_session_id]
             : null,
           attendanceRecords,
         });
       }
     },
-    [events, cohortNameById, sessionDataById, attendanceBySession]
+    [events, cohortNameById, sessions, attendanceBySession]
   );
 
   const handleDeleteEvent = () => {
@@ -55,6 +56,9 @@ export function AdminEventsClient({
     const result = await createEvent(undefined, formData);
     if (result?.event) {
       setEvents((prevEvents) => [...prevEvents, result.event]);
+    }
+    if (result?.session) {
+      setSessions((prev) => ({ ...prev, [result.session.id]: result.session }));
     }
     setCreateDate(null);
   };

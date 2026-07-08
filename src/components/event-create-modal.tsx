@@ -95,6 +95,11 @@ export function EventCreateModal({ isOpen, selectedDate, cohorts, onClose, onSub
             />
           </div>
 
+          <label className="flex items-center gap-3">
+            <input type="checkbox" name="notify_students" defaultChecked className="w-4 h-4" />
+            <span className="text-sm">Notify students when this event is created</span>
+          </label>
+
           <div>
             <label className="block text-sm font-medium text-foreground mb-3">Audience</label>
             <div className="space-y-2">

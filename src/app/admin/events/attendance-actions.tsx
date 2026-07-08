@@ -10,6 +10,7 @@ interface AttendanceActionsProps {
   sessionStatus: "draft" | "open" | "closed";
   sessionSecret: string;
   codeInterval: number;
+  onStatusChange?: (status: "draft" | "open" | "closed") => void;
 }
 
 export function AttendanceActions({
@@ -17,6 +18,7 @@ export function AttendanceActions({
   sessionStatus,
   sessionSecret,
   codeInterval,
+  onStatusChange,
 }: AttendanceActionsProps) {
   const [pending, startTransition] = useTransition();
   const [code, setCode] = useState<string>("");
@@ -43,7 +45,12 @@ export function AttendanceActions({
         type="button"
         className="w-full"
         loading={pending}
-        onClick={() => startTransition(() => openSession(sessionId))}
+        onClick={() =>
+          startTransition(async () => {
+            await openSession(sessionId);
+            onStatusChange?.("open");
+          })
+        }
       >
         Open Attendance
       </Button>
@@ -65,7 +72,10 @@ export function AttendanceActions({
           loading={pending}
           onClick={() => {
             if (window.confirm("Close attendance?")) {
-              startTransition(() => closeSession(sessionId));
+              startTransition(async () => {
+                await closeSession(sessionId);
+                onStatusChange?.("closed");
+              });
             }
           }}
         >

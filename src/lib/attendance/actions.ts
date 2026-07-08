@@ -106,6 +106,7 @@ export async function openSession(sessionId: string, notifyStudents = false) {
 
   revalidatePath("/admin/attendance");
   revalidatePath(`/admin/attendance/${sessionId}`);
+  revalidatePath("/admin/events");
 }
 
 export async function closeSession(sessionId: string) {
@@ -118,6 +119,7 @@ export async function closeSession(sessionId: string) {
 
   revalidatePath("/admin/attendance");
   revalidatePath(`/admin/attendance/${sessionId}`);
+  revalidatePath("/admin/events");
 }
 
 export async function deleteSession(sessionId: string) {
