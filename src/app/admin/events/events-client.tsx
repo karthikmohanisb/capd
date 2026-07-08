@@ -14,6 +14,7 @@ interface AdminEventsClientProps {
   sessionDataById: Record<string, any>;
   cohortNameById: Record<string, string>;
   attendanceBySession: Record<string, any[]>;
+  participantsByEvent: Record<string, string[]>;
 }
 
 export function AdminEventsClient({
@@ -23,6 +24,7 @@ export function AdminEventsClient({
   sessionDataById,
   cohortNameById,
   attendanceBySession,
+  participantsByEvent,
 }: AdminEventsClientProps) {
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [createDate, setCreateDate] = useState<Date | null>(null);
@@ -39,6 +41,14 @@ export function AdminEventsClient({
           ? attendanceBySession[event.attendance_session_id] || []
           : [];
 
+        let eligibleStudents = students;
+        if (event.audience_type === "cohort") {
+          eligibleStudents = students.filter((s) => s.cohort_id === event.cohort_id);
+        } else if (event.audience_type === "custom") {
+          const ids = new Set(participantsByEvent[event.id] || []);
+          eligibleStudents = students.filter((s) => ids.has(s.id));
+        }
+
         setSelectedEvent({
           ...event,
           cohort_name: cohortNameById[event.cohort_id],
@@ -46,10 +56,11 @@ export function AdminEventsClient({
             ? sessions[event.attendance_session_id]
             : null,
           attendanceRecords,
+          eligibleStudents,
         });
       }
     },
-    [events, cohortNameById, sessions, attendanceBySession]
+    [events, cohortNameById, sessions, attendanceBySession, students, participantsByEvent]
   );
 
   const handleDeleteEvent = () => {
@@ -107,6 +118,7 @@ export function AdminEventsClient({
         event={selectedEvent}
         sessionData={selectedEvent?.sessionData}
         attendanceRecords={selectedEvent?.attendanceRecords}
+        eligibleStudents={selectedEvent?.eligibleStudents}
         onClose={() => setSelectedEvent(null)}
         onDelete={handleDeleteEvent}
         onRefresh={() => {

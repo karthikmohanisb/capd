@@ -19,7 +19,7 @@ export default async function AdminEventsPage() {
     supabase.from("cohorts").select("id, name").order("name", { ascending: true }),
     supabase
       .from("profiles")
-      .select("id, email, full_name")
+      .select("id, email, full_name, cohort_id")
       .eq("role", "student")
       .order("full_name", { ascending: true }),
   ]);
@@ -36,7 +36,7 @@ export default async function AdminEventsPage() {
   const { data: attendanceRecords } = sessionIds.length
     ? await supabase
         .from("attendance_records")
-        .select("session_id, student_id, profiles!student_id(full_name, email)")
+        .select("session_id, student_id, marked_at, profiles!student_id(full_name, email)")
         .in("session_id", sessionIds)
     : { data: [] };
 
@@ -45,6 +45,23 @@ export default async function AdminEventsPage() {
     const sessionId = record.session_id;
     if (!recordsBySession[sessionId]) recordsBySession[sessionId] = [];
     recordsBySession[sessionId].push(record);
+  });
+
+  // Fetch custom-audience participant lists, keyed by event id
+  const customEventIds = (events ?? [])
+    .filter((e) => e.audience_type === "custom")
+    .map((e) => e.id);
+  const { data: participants } = customEventIds.length
+    ? await supabase
+        .from("event_participants")
+        .select("event_id, student_id")
+        .in("event_id", customEventIds)
+    : { data: [] };
+
+  const participantsByEvent: Record<string, string[]> = {};
+  (participants ?? []).forEach((p) => {
+    if (!participantsByEvent[p.event_id]) participantsByEvent[p.event_id] = [];
+    participantsByEvent[p.event_id].push(p.student_id);
   });
 
   const cohortNameById = Object.fromEntries((cohorts ?? []).map((c) => [c.id, c.name]));
@@ -57,6 +74,7 @@ export default async function AdminEventsPage() {
       sessionDataById={sessionDataById}
       cohortNameById={cohortNameById}
       attendanceBySession={recordsBySession}
+      participantsByEvent={participantsByEvent}
     />
   );
 }

@@ -12,6 +12,7 @@ interface EventDetailModalProps {
   event: any;
   sessionData?: any;
   attendanceRecords?: any[];
+  eligibleStudents?: { full_name: string | null; email: string }[];
   onClose: () => void;
   onRefresh?: () => void;
   onDelete?: () => void;
@@ -22,6 +23,7 @@ export function EventDetailModal({
   event,
   sessionData,
   attendanceRecords = [],
+  eligibleStudents = [],
   onClose,
   onRefresh,
   onDelete,
@@ -57,8 +59,15 @@ export function EventDetailModal({
   };
 
   const handleExportCSV = () => {
-    const csv = generateAttendanceCSV(attendanceRecords, event.title);
-    downloadCSV(csv, `${event.title}-attendance.csv`);
+    const markedByEmail: Record<string, string> = {};
+    attendanceRecords.forEach((record) => {
+      const email = record.profiles?.email;
+      if (email) {
+        markedByEmail[email] = new Date(record.marked_at).toLocaleString();
+      }
+    });
+    const csv = generateAttendanceCSV(eligibleStudents, markedByEmail, event.title);
+    downloadCSV(csv, `attendance-${event.title}-${new Date(event.event_at ?? Date.now()).toISOString().slice(0, 10)}.csv`);
   };
 
   return (
@@ -138,17 +147,18 @@ export function EventDetailModal({
                 onStatusChange={setStatus}
               />
 
-              {attendanceRecords.length > 0 && (
+              {eligibleStudents.length > 0 && (
                 <div className="mt-4 pt-4 border-t">
                   <p className="text-sm text-gray-600 mb-3">
-                    {attendanceRecords.length} student{attendanceRecords.length !== 1 ? "s" : ""} checked in
+                    {attendanceRecords.length} of {eligibleStudents.length} student
+                    {eligibleStudents.length !== 1 ? "s" : ""} checked in
                   </p>
                   <Button
                     onClick={handleExportCSV}
                     className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
                   >
                     <Download className="h-4 w-4" />
-                    Export Attendance
+                    Export Attendance (Present &amp; Absent)
                   </Button>
                 </div>
               )}
