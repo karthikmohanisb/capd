@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { WeekCalendar } from "@/components/week-calendar";
+import { WeekCalendarWithList } from "@/components/week-calendar-with-list";
 import { EventDetailModal } from "@/components/event-detail-modal";
 import { EventCreateModal } from "@/components/event-create-modal";
 import { createEvent } from "@/lib/events/actions";
@@ -46,25 +46,24 @@ export function AdminEventsClient({
     [events, cohortNameById, sessionDataById, attendanceBySession]
   );
 
-  const handleDateClick = (date: Date) => {
-    setCreateDate(date);
+  const handleDeleteEvent = () => {
+    // Remove deleted event from state to update UI immediately
+    setEvents((prevEvents) => prevEvents.filter((e) => e.id !== selectedEvent.id));
   };
 
   const handleCreateEvent = async (formData: FormData) => {
     await createEvent(undefined, formData);
+    // Optionally refresh events after creation
+    setCreateDate(null);
   };
 
   return (
     <div className="flex flex-col gap-6 px-4 py-6 pb-20">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Events</h1>
-        <p className="mt-1 text-sm text-gray-600">Week view - Click an event to manage it</p>
+        <h1 className="text-xl font-bold text-foreground">Events</h1>
       </div>
 
-      <WeekCalendar
-        events={events}
-        onEventClick={handleEventClick}
-      />
+      <WeekCalendarWithList events={events} onEventClick={handleEventClick} />
 
       <EventDetailModal
         isOpen={!!selectedEvent}
@@ -72,6 +71,7 @@ export function AdminEventsClient({
         sessionData={selectedEvent?.sessionData}
         attendanceRecords={selectedEvent?.attendanceRecords}
         onClose={() => setSelectedEvent(null)}
+        onDelete={handleDeleteEvent}
         onRefresh={() => {
           setSelectedEvent(null);
         }}
