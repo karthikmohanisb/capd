@@ -20,7 +20,6 @@ export async function createEvent(
   const location = String(formData.get("location") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
   const eventAtRaw = String(formData.get("event_at") ?? "");
-  const enableAttendance = formData.get("enable_attendance") === "on";
 
   const audienceType = formData.get("audience_type");
   const audience: "all" | "cohort" | "custom" =
@@ -42,12 +41,10 @@ export async function createEvent(
 
   const supabase = await createClient();
 
-  // Enabling attendance creates a session with the same audience as the
-  // event, so admins never have to jump to the separate Attendance tab
-  // just to get a session set up — they still go there to open/close it
-  // live, or can do that right from the event card below.
+  // Automatically create an attendance session for every event
+  // (no checkbox needed — attendance is always available for events with dates)
   let attendanceSessionId: string | null = null;
-  if (enableAttendance) {
+  if (eventAt) {
     const { data: session, error: sessionError } = await supabase
       .from("attendance_sessions")
       .insert({
@@ -108,9 +105,8 @@ export async function createEvent(
   }
 
   revalidatePath("/admin/events");
-  if (enableAttendance) revalidatePath("/admin/attendance");
   return {
-    success: enableAttendance
+    success: attendanceSessionId
       ? "Event created as a draft, with attendance ready to open."
       : "Event created as a draft.",
   };

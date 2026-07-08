@@ -59,15 +59,6 @@ export function EventForm({
 
       <AudiencePicker cohorts={cohorts} students={students} />
 
-      <label className="flex items-center gap-2 text-sm text-foreground">
-        <input type="checkbox" name="enable_attendance" className="h-4 w-4" />
-        Enable attendance for this event
-      </label>
-      <p className="-mt-2 text-xs text-muted">
-        Creates a rotating check-in code for the audience above. Open and close it from the
-        event card once it&apos;s created, or from the Attendance tab.
-      </p>
-
       <FormError message={state?.error} />
       {state?.success && <p className="text-sm font-medium text-success">{state.success}</p>}
 
