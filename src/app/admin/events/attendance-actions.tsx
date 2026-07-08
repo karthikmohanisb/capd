@@ -37,48 +37,43 @@ export function AttendanceActions({
     return () => clearInterval(interval);
   }, [sessionStatus, sessionSecret, sessionId, codeInterval]);
 
-  return (
-    <div className="flex flex-col gap-2">
-      {sessionStatus === "draft" && (
+  if (sessionStatus === "draft") {
+    return (
+      <Button
+        type="button"
+        className="w-full"
+        loading={pending}
+        onClick={() => startTransition(() => openSession(sessionId))}
+      >
+        Open Attendance
+      </Button>
+    );
+  }
+
+  if (sessionStatus === "open") {
+    return (
+      <div className="space-y-3">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-xs text-gray-600 mb-2">Current Check-in Code</p>
+          <p className="text-4xl font-bold text-blue-600 font-mono tracking-widest">{code}</p>
+          <p className="text-xs text-gray-500 mt-2">Refreshes in {timeLeft} seconds</p>
+        </div>
         <Button
           type="button"
-          className="px-3 py-1.5 text-xs"
+          variant="danger"
+          className="w-full"
           loading={pending}
-          onClick={() => startTransition(() => openSession(sessionId))}
+          onClick={() => {
+            if (window.confirm("Close attendance?")) {
+              startTransition(() => closeSession(sessionId));
+            }
+          }}
         >
-          Open Attendance
+          Close
         </Button>
-      )}
+      </div>
+    );
+  }
 
-      {sessionStatus === "open" && (
-        <>
-          <div className="flex items-center gap-3 rounded-lg bg-primary/10 p-3">
-            <div>
-              <p className="text-xs text-muted mb-1">Current code (refreshes in {timeLeft}s)</p>
-              <p className="text-3xl font-bold text-primary font-mono tracking-wider">{code}</p>
-            </div>
-          </div>
-          <Button
-            type="button"
-            variant="danger"
-            className="px-3 py-1.5 text-xs"
-            loading={pending}
-            onClick={() => {
-              if (window.confirm("Close attendance? Students won't be able to check in anymore.")) {
-                startTransition(() => closeSession(sessionId));
-              }
-            }}
-          >
-            Close Attendance
-          </Button>
-        </>
-      )}
-
-      {sessionStatus === "closed" && (
-        <div className="text-xs text-muted bg-surface rounded px-2 py-1">
-          Attendance is closed.
-        </div>
-      )}
-    </div>
-  );
+  return <p className="text-xs text-gray-500">Attendance closed</p>;
 }
