@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EventForm } from "./event-form";
 import { EventActions } from "./event-actions";
-import { SessionActions } from "../attendance/session-actions";
 import type { EventStatus } from "@/types/database";
 
 export default async function AdminEventsPage() {
@@ -77,16 +76,15 @@ export default async function AdminEventsPage() {
 
               {event.attendance_session_id && (
                 <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs font-medium text-foreground">Attendance</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium text-foreground">Attendance Session</p>
                     <AttendanceStatusBadge
                       status={sessionStatusById.get(event.attendance_session_id) ?? "draft"}
                     />
                   </div>
-                  <SessionActions
-                    sessionId={event.attendance_session_id}
-                    status={sessionStatusById.get(event.attendance_session_id) ?? "draft"}
-                  />
+                  <p className="text-xs text-muted">
+                    ID: {event.attendance_session_id.substring(0, 8)}...
+                  </p>
                 </div>
               )}
             </Card>

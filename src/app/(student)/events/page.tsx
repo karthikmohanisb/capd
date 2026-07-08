@@ -69,7 +69,7 @@ export default async function EventsPage() {
                             <p className="mt-2 line-clamp-2 text-sm text-muted">{event.description}</p>
                           )}
                         </div>
-                        {event.category && <Badge className="shrink-0">{event.category}</Badge>}
+                        {event.category && <Badge>{event.category}</Badge>}
                       </div>
                       {event.attendance_session_id && (
                         <p className="mt-3 text-xs font-medium text-primary">✓ Attendance enabled</p>
