@@ -54,7 +54,7 @@ export function AdminCalendar({ events, onDateClick, onEventClick }: AdminCalend
                   )}
                   <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-600">
                     {event.event_at && (
-                      <span>📅 {new Date(event.event_at).toLocaleDateString()}</span>
+                      <span>📅 {new Date(event.event_at).toISOString().split('T')[0]}</span>
                     )}
                     {event.location && <span>📍 {event.location}</span>}
                     {event.category && <span>🏷️ {event.category}</span>}
