@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { AdminCalendar } from "@/components/admin-calendar";
+import { WeekCalendar } from "@/components/week-calendar";
 import { EventDetailModal } from "@/components/event-detail-modal";
 import { EventCreateModal } from "@/components/event-create-modal";
 import { createEvent } from "@/lib/events/actions";
@@ -11,6 +11,7 @@ interface AdminEventsClientProps {
   cohorts: any[];
   sessionDataById: Record<string, any>;
   cohortNameById: Record<string, string>;
+  attendanceBySession: Record<string, any[]>;
 }
 
 export function AdminEventsClient({
@@ -18,6 +19,7 @@ export function AdminEventsClient({
   cohorts,
   sessionDataById,
   cohortNameById,
+  attendanceBySession,
 }: AdminEventsClientProps) {
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [createDate, setCreateDate] = useState<Date | null>(null);
@@ -27,16 +29,21 @@ export function AdminEventsClient({
     (eventId: string) => {
       const event = events.find((e) => e.id === eventId);
       if (event) {
+        const attendanceRecords = event.attendance_session_id
+          ? attendanceBySession[event.attendance_session_id] || []
+          : [];
+
         setSelectedEvent({
           ...event,
           cohort_name: cohortNameById[event.cohort_id],
           sessionData: event.attendance_session_id
             ? sessionDataById[event.attendance_session_id]
             : null,
+          attendanceRecords,
         });
       }
     },
-    [events, cohortNameById, sessionDataById]
+    [events, cohortNameById, sessionDataById, attendanceBySession]
   );
 
   const handleDateClick = (date: Date) => {
@@ -50,13 +57,12 @@ export function AdminEventsClient({
   return (
     <div className="flex flex-col gap-6 px-4 py-6 pb-20">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Events Calendar</h1>
-        <p className="mt-2 text-sm text-gray-600">Click a date to create an event. Click an event to manage it.</p>
+        <h1 className="text-2xl font-bold text-foreground">Events</h1>
+        <p className="mt-1 text-sm text-gray-600">Week view - Click an event to manage it</p>
       </div>
 
-      <AdminCalendar
+      <WeekCalendar
         events={events}
-        onDateClick={handleDateClick}
         onEventClick={handleEventClick}
       />
 
@@ -64,6 +70,7 @@ export function AdminEventsClient({
         isOpen={!!selectedEvent}
         event={selectedEvent}
         sessionData={selectedEvent?.sessionData}
+        attendanceRecords={selectedEvent?.attendanceRecords}
         onClose={() => setSelectedEvent(null)}
         onRefresh={() => {
           setSelectedEvent(null);

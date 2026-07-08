@@ -1,21 +1,30 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { X } from "lucide-react";
+import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AttendanceActions } from "@/app/admin/events/attendance-actions";
 import { cancelEvent, deleteEvent } from "@/lib/events/actions";
+import { generateAttendanceCSV, downloadCSV } from "@/lib/attendance/export";
 
 interface EventDetailModalProps {
   isOpen: boolean;
   event: any;
   sessionData?: any;
+  attendanceRecords?: any[];
   onClose: () => void;
   onRefresh?: () => void;
 }
 
-export function EventDetailModal({ isOpen, event, sessionData, onClose, onRefresh }: EventDetailModalProps) {
+export function EventDetailModal({
+  isOpen,
+  event,
+  sessionData,
+  attendanceRecords = [],
+  onClose,
+  onRefresh,
+}: EventDetailModalProps) {
   const [pending, startTransition] = useTransition();
 
   if (!isOpen || !event) return null;
@@ -38,6 +47,15 @@ export function EventDetailModal({ isOpen, event, sessionData, onClose, onRefres
         onClose();
       });
     }
+  };
+
+  const handleExportCSV = () => {
+    if (attendanceRecords.length === 0) {
+      alert("No attendance records to export");
+      return;
+    }
+    const csv = generateAttendanceCSV(attendanceRecords, event.title);
+    downloadCSV(csv, `${event.title}-attendance.csv`);
   };
 
   return (
@@ -96,14 +114,32 @@ export function EventDetailModal({ isOpen, event, sessionData, onClose, onRefres
 
           {/* Attendance Section */}
           {event.attendance_session_id && sessionData && (
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="font-semibold text-foreground mb-4">Attendance Management</h3>
-              <AttendanceActions
-                sessionId={event.attendance_session_id}
-                sessionStatus={sessionData.status}
-                sessionSecret={sessionData.session_secret}
-                codeInterval={sessionData.code_interval_seconds}
-              />
+            <div className="border-t border-gray-200 pt-6 space-y-4">
+              <div>
+                <h3 className="font-semibold text-foreground mb-3">Manage Attendance</h3>
+                <AttendanceActions
+                  sessionId={event.attendance_session_id}
+                  sessionStatus={sessionData.status}
+                  sessionSecret={sessionData.session_secret}
+                  codeInterval={sessionData.code_interval_seconds}
+                />
+              </div>
+
+              {/* Export Button */}
+              {attendanceRecords.length > 0 && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {attendanceRecords.length} student{attendanceRecords.length !== 1 ? "s" : ""} checked in
+                  </p>
+                  <Button
+                    onClick={handleExportCSV}
+                    className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
+                  >
+                    <Download className="h-4 w-4" />
+                    Export Attendance CSV
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 

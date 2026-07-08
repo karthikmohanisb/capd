@@ -1,23 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 interface Event {
   id: string;
   title: string;
-  description: string | null;
-  location: string | null;
-  category: string | null;
   event_at: string | null;
-  attendance_session_id: string | null;
 }
 
-export function WeekCalendar({ events }: { events: Event[] }) {
+interface WeekCalendarProps {
+  events: Event[];
+  onEventClick: (eventId: string) => void;
+}
+
+export function WeekCalendar({ events, onEventClick }: WeekCalendarProps) {
   const [weekStart, setWeekStart] = useState(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -26,34 +24,20 @@ export function WeekCalendar({ events }: { events: Event[] }) {
     return today;
   });
 
-  const days = useMemo(() => {
-    const result = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(weekStart);
-      date.setDate(date.getDate() + i);
-      result.push(date);
-    }
-    return result;
-  }, [weekStart]);
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(weekStart);
+    date.setDate(date.getDate() + i);
+    days.push(date);
+  }
 
-  const eventsByDate = useMemo(() => {
-    const map: Record<string, Event[]> = {};
-    events.forEach((event) => {
-      if (!event.event_at) return;
-      const date = new Date(event.event_at).toLocaleDateString();
-      if (!map[date]) map[date] = [];
-      map[date].push(event);
-    });
-    return map;
-  }, [events]);
-
-  const goToToday = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const day = today.getDay();
-    today.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
-    setWeekStart(today);
-  };
+  const eventsByDate: Record<string, Event[]> = {};
+  events.forEach((event) => {
+    if (!event.event_at) return;
+    const dateKey = new Date(event.event_at).toLocaleDateString();
+    if (!eventsByDate[dateKey]) eventsByDate[dateKey] = [];
+    eventsByDate[dateKey].push(event);
+  });
 
   const prevWeek = () => {
     const newDate = new Date(weekStart);
@@ -67,77 +51,80 @@ export function WeekCalendar({ events }: { events: Event[] }) {
     setWeekStart(newDate);
   };
 
+  const goToToday = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const day = today.getDay();
+    today.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+    setWeekStart(today);
+  };
+
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 6);
 
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.toLocaleDateString() === today.toLocaleDateString();
+  };
+
   return (
     <div className="flex flex-col gap-4">
-      {/* Header with navigation */}
-      <div className="flex items-center justify-between px-4">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">
-            {weekStart.toLocaleDateString("en-US", { month: "long", day: "numeric" })} -{" "}
-            {weekEnd.toLocaleDateString("en-US", { month: "long", day: "numeric" })}
-          </h2>
-          <p className="text-xs text-muted mt-1">
-            {weekStart.toLocaleDateString("en-US", { year: "numeric" })}
-          </p>
-        </div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-foreground">
+          {weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })} -{" "}
+          {weekEnd.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+        </h2>
         <div className="flex gap-2">
-          <Button onClick={prevWeek} className="h-8 w-8 p-0">
+          <Button variant="secondary" className="px-2 py-2" onClick={prevWeek}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button onClick={goToToday} className="h-8 px-2 text-xs">
+          <Button variant="secondary" className="px-3 py-2 text-xs" onClick={goToToday}>
             Today
           </Button>
-          <Button onClick={nextWeek} className="h-8 w-8 p-0">
+          <Button variant="secondary" className="px-2 py-2" onClick={nextWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {/* Week grid */}
-      <div className="grid grid-cols-7 gap-2 px-4">
-        {days.map((date) => {
-          const dateStr = date.toLocaleDateString();
-          const dayEvents = eventsByDate[dateStr] || [];
-          const isToday = dateStr === new Date().toLocaleDateString();
+      {/* Week Grid */}
+      <div className="grid grid-cols-7 gap-2">
+        {days.map((date, idx) => {
+          const dateKey = date.toLocaleDateString();
+          const dayEvents = eventsByDate[dateKey] || [];
+          const today = isToday(date);
 
           return (
             <div
-              key={dateStr}
-              className={`flex flex-col gap-2 p-2 rounded-lg min-h-32 ${
-                isToday ? "bg-primary/10 ring-1 ring-primary" : "bg-surface"
+              key={idx}
+              className={`flex flex-col rounded-lg border p-3 min-h-[160px] ${
+                today ? "bg-blue-50 border-blue-300" : "bg-white border-gray-200"
               }`}
             >
-              <div>
-                <p className="text-xs font-semibold text-foreground">
+              <div className="mb-2">
+                <p className={`text-xs font-semibold ${today ? "text-blue-600" : "text-gray-600"}`}>
                   {date.toLocaleDateString("en-US", { weekday: "short" })}
                 </p>
-                <p className={`text-sm font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
+                <p className={`text-lg font-bold ${today ? "text-blue-600" : "text-foreground"}`}>
                   {date.getDate()}
                 </p>
               </div>
 
-              <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
+              {/* Events */}
+              <div className="flex flex-col gap-2 flex-1 overflow-y-auto">
                 {dayEvents.length > 0 ? (
                   dayEvents.map((event) => (
-                    <Link key={event.id} href={`/events/${event.id}`}>
-                      <div className="text-xs bg-primary/20 text-primary p-1 rounded cursor-pointer hover:bg-primary/30 transition-colors">
-                        <p className="font-medium line-clamp-1">{event.title}</p>
-                        {event.event_at && (
-                          <p className="text-xs opacity-80">
-                            {new Date(event.event_at).toLocaleTimeString("en-US", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
-                        )}
-                      </div>
-                    </Link>
+                    <button
+                      key={event.id}
+                      onClick={() => onEventClick(event.id)}
+                      className="text-left text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition line-clamp-2 font-medium"
+                    >
+                      {event.title}
+                    </button>
                   ))
                 ) : (
-                  <p className="text-xs text-muted">-</p>
+                  <p className="text-xs text-gray-400 text-center mt-auto mb-auto">No events</p>
                 )}
               </div>
             </div>

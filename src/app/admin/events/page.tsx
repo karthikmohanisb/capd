@@ -25,6 +25,21 @@ export default async function AdminEventsPage() {
     : { data: [] };
   const sessionDataById = Object.fromEntries((sessions ?? []).map((s) => [s.id, s]));
 
+  // Fetch attendance records for all sessions
+  const { data: attendanceRecords } = sessionIds.length
+    ? await supabase
+        .from("attendance_records")
+        .select("session_id, student_id, profiles!student_id(full_name, email)")
+        .in("session_id", sessionIds)
+    : { data: [] };
+
+  const recordsBySession: Record<string, any[]> = {};
+  (attendanceRecords ?? []).forEach((record) => {
+    const sessionId = record.session_id;
+    if (!recordsBySession[sessionId]) recordsBySession[sessionId] = [];
+    recordsBySession[sessionId].push(record);
+  });
+
   const cohortNameById = Object.fromEntries((cohorts ?? []).map((c) => [c.id, c.name]));
 
   return (
@@ -33,6 +48,7 @@ export default async function AdminEventsPage() {
       cohorts={cohorts ?? []}
       sessionDataById={sessionDataById}
       cohortNameById={cohortNameById}
+      attendanceBySession={recordsBySession}
     />
   );
 }
