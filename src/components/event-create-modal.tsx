@@ -3,16 +3,29 @@
 import { useState, useTransition } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AudiencePicker } from "@/components/audience-picker";
+
+interface Cohort {
+  id: string;
+  name: string;
+}
+
+interface Student {
+  id: string;
+  email: string;
+  full_name: string | null;
+}
 
 interface EventCreateModalProps {
   isOpen: boolean;
   selectedDate?: Date;
-  cohorts: any[];
+  cohorts: Cohort[];
+  students: Student[];
   onClose: () => void;
   onSubmit: (formData: FormData) => Promise<any>;
 }
 
-export function EventCreateModal({ isOpen, selectedDate, cohorts, onClose, onSubmit }: EventCreateModalProps) {
+export function EventCreateModal({ isOpen, selectedDate, cohorts, students, onClose, onSubmit }: EventCreateModalProps) {
   const [pending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -100,23 +113,7 @@ export function EventCreateModal({ isOpen, selectedDate, cohorts, onClose, onSub
             <span className="text-sm">Notify students when this event is created</span>
           </label>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-3">Audience</label>
-            <div className="space-y-2">
-              <label className="flex items-center gap-3">
-                <input type="radio" name="audience_type" value="all" defaultChecked className="w-4 h-4" />
-                <span className="text-sm">Everyone</span>
-              </label>
-              <label className="flex items-center gap-3">
-                <input type="radio" name="audience_type" value="cohort" className="w-4 h-4" />
-                <span className="text-sm">A cohort</span>
-              </label>
-              <label className="flex items-center gap-3">
-                <input type="radio" name="audience_type" value="custom" className="w-4 h-4" />
-                <span className="text-sm">Custom list</span>
-              </label>
-            </div>
-          </div>
+          <AudiencePicker cohorts={cohorts} students={students} />
 
           {/* Actions */}
           <div className="pt-4 border-t border-gray-200 flex gap-3 justify-end">

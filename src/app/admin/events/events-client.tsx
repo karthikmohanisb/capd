@@ -9,6 +9,7 @@ import { createEvent } from "@/lib/events/actions";
 interface AdminEventsClientProps {
   initialEvents: any[];
   cohorts: any[];
+  students: any[];
   sessionDataById: Record<string, any>;
   cohortNameById: Record<string, string>;
   attendanceBySession: Record<string, any[]>;
@@ -17,6 +18,7 @@ interface AdminEventsClientProps {
 export function AdminEventsClient({
   initialEvents,
   cohorts,
+  students,
   sessionDataById,
   cohortNameById,
   attendanceBySession,
@@ -91,6 +93,7 @@ export function AdminEventsClient({
         isOpen={!!createDate}
         selectedDate={createDate || undefined}
         cohorts={cohorts}
+        students={students}
         onClose={() => setCreateDate(null)}
         onSubmit={handleCreateEvent}
       />

@@ -6,7 +6,7 @@ export default async function AdminEventsPage() {
   await requireAdmin();
   const supabase = await createClient();
 
-  const [{ data: events }, { data: cohorts }] = await Promise.all([
+  const [{ data: events }, { data: cohorts }, { data: students }] = await Promise.all([
     supabase
       .from("events")
       .select(
@@ -15,6 +15,11 @@ export default async function AdminEventsPage() {
       .order("event_at", { ascending: true })
       .limit(200),
     supabase.from("cohorts").select("id, name").order("name", { ascending: true }),
+    supabase
+      .from("profiles")
+      .select("id, email, full_name")
+      .eq("role", "student")
+      .order("full_name", { ascending: true }),
   ]);
 
   const sessionIds = (events ?? [])
@@ -46,6 +51,7 @@ export default async function AdminEventsPage() {
     <AdminEventsClient
       initialEvents={events ?? []}
       cohorts={cohorts ?? []}
+      students={students ?? []}
       sessionDataById={sessionDataById}
       cohortNameById={cohortNameById}
       attendanceBySession={recordsBySession}
