@@ -10,7 +10,7 @@ export default async function SetPinPage() {
   }
 
   if (!profile.must_set_pin) {
-    redirect(profile.role === "admin" ? "/admin" : "/attendance");
+    redirect(profile.role === "admin" ? "/admin" : "/events");
   }
 
   return (

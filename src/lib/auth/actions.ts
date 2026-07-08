@@ -58,7 +58,7 @@ export async function login(
     redirect("/set-pin");
   }
 
-  redirect(profile.role === "admin" ? "/admin" : "/attendance");
+  redirect(profile.role === "admin" ? "/admin" : "/events");
 }
 
 export async function setPin(
@@ -105,7 +105,7 @@ export async function setPin(
     .eq("id", user.id)
     .single();
 
-  redirect(profile?.role === "admin" ? "/admin" : "/attendance");
+  redirect(profile?.role === "admin" ? "/admin" : "/events");
 }
 
 export async function requestPinReset(
