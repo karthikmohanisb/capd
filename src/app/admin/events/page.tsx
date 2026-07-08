@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EventForm } from "./event-form";
 import { EventActions } from "./event-actions";
+import { AttendanceActions } from "./attendance-actions";
 import type { EventStatus } from "@/types/database";
 
 export default async function AdminEventsPage() {
@@ -33,9 +34,9 @@ export default async function AdminEventsPage() {
     .map((e) => e.attendance_session_id)
     .filter((id): id is string => Boolean(id));
   const { data: sessions } = sessionIds.length
-    ? await supabase.from("attendance_sessions").select("id, status").in("id", sessionIds)
+    ? await supabase.from("attendance_sessions").select("id, status, session_secret, code_interval_seconds").in("id", sessionIds)
     : { data: [] };
-  const sessionStatusById = new Map((sessions ?? []).map((s) => [s.id, s.status]));
+  const sessionDataById = new Map((sessions ?? []).map((s) => [s.id, s]));
 
   return (
     <div className="flex flex-col gap-6 px-4 py-6">
@@ -75,16 +76,19 @@ export default async function AdminEventsPage() {
               <EventActions eventId={event.id} status={event.status} />
 
               {event.attendance_session_id && (
-                <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
+                <div className="mt-3 flex flex-col gap-3 border-t border-border pt-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-medium text-foreground">Attendance Session</p>
+                    <p className="text-xs font-medium text-foreground">Attendance</p>
                     <AttendanceStatusBadge
-                      status={sessionStatusById.get(event.attendance_session_id) ?? "draft"}
+                      status={sessionDataById.get(event.attendance_session_id)?.status ?? "draft"}
                     />
                   </div>
-                  <p className="text-xs text-muted">
-                    ID: {event.attendance_session_id.substring(0, 8)}...
-                  </p>
+                  <AttendanceActions
+                    sessionId={event.attendance_session_id}
+                    sessionStatus={sessionDataById.get(event.attendance_session_id)?.status ?? "draft"}
+                    sessionSecret={sessionDataById.get(event.attendance_session_id)?.session_secret ?? ""}
+                    codeInterval={sessionDataById.get(event.attendance_session_id)?.code_interval_seconds ?? 45}
+                  />
                 </div>
               )}
             </Card>
