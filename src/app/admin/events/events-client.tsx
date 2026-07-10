@@ -4,8 +4,7 @@ import { useState, useCallback, useTransition } from "react";
 import { WeekCalendarWithList } from "@/components/week-calendar-with-list";
 import { EventDetailModal } from "@/components/event-detail-modal";
 import { EventCreateModal } from "@/components/event-create-modal";
-import { createEvent, repairAllBrokenEvents } from "@/lib/events/actions";
-import { Button } from "@/components/ui/button";
+import { createEvent } from "@/lib/events/actions";
 
 interface AdminEventsClientProps {
   initialEvents: any[];
@@ -31,7 +30,6 @@ export function AdminEventsClient({
   const [events, setEvents] = useState(initialEvents);
   const [sessions, setSessions] = useState(sessionDataById);
   const [pending, startTransition] = useTransition();
-  const [repairMessage, setRepairMessage] = useState<string | null>(null);
 
   const handleEventClick = useCallback(
     (eventId: string) => {
@@ -68,18 +66,6 @@ export function AdminEventsClient({
     setEvents((prevEvents) => prevEvents.filter((e) => e.id !== selectedEvent.id));
   };
 
-  const handleRepairEvents = () => {
-    startTransition(async () => {
-      const result = await repairAllBrokenEvents();
-      if (result?.success) {
-        setRepairMessage(result.success);
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      }
-    });
-  };
-
   const handleCreateEvent = async (formData: FormData) => {
     const result = await createEvent(undefined, formData);
     if (result?.event) {
@@ -93,19 +79,7 @@ export function AdminEventsClient({
 
   return (
     <div className="flex flex-col gap-6 px-4 py-6 pb-20">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Events</h1>
-        <Button
-          onClick={handleRepairEvents}
-          loading={pending}
-          className="mt-3 bg-amber-600 hover:bg-amber-700 text-sm"
-        >
-          🔧 Repair Events (Fix missing sessions)
-        </Button>
-        {repairMessage && (
-          <p className="mt-2 text-sm text-green-600">{repairMessage}</p>
-        )}
-      </div>
+      <h1 className="text-2xl font-bold text-foreground">Events</h1>
 
       <WeekCalendarWithList
         events={events}
