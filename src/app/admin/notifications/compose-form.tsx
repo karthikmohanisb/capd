@@ -17,6 +17,7 @@ interface StudentOption {
   id: string;
   email: string;
   full_name: string | null;
+  cohort_id?: string | null;
 }
 
 export function ComposeForm({ cohorts, students }: { cohorts: Cohort[]; students: StudentOption[] }) {

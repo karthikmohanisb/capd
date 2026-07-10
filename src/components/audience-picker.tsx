@@ -4,7 +4,6 @@ import { useMemo, useState, type ChangeEvent } from "react";
 import { inspectImportFile } from "@/lib/import/actions";
 import { matchStudentsByEmail } from "@/lib/audience/actions";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 
 interface Cohort {
   id: string;
@@ -15,6 +14,7 @@ interface StudentOption {
   id: string;
   email: string;
   full_name: string | null;
+  cohort_id?: string | null;
 }
 
 // Reusable "who is this for" picker — emits plain form fields
@@ -28,8 +28,8 @@ export function AudiencePicker({
   cohorts: Cohort[];
   students: StudentOption[];
 }) {
-  const [audienceType, setAudienceType] = useState<"all" | "cohort" | "custom">("all");
-  const [cohortId, setCohortId] = useState("");
+  const [uiMode, setUiMode] = useState<"all" | "cohort" | "custom">("all");
+  const [selectedCohortIds, setSelectedCohortIds] = useState<Set<string>>(new Set());
   const [customMode, setCustomMode] = useState<"search" | "upload">("search");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -52,6 +52,29 @@ export function AudiencePicker({
       return next;
     });
   }
+
+  function toggleCohort(id: string) {
+    setSelectedCohortIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  // A single cohort keeps using the existing "cohort" audience path (live
+  // membership, tracks changes automatically). Two or more cohorts fall back
+  // to the "custom" path with a frozen snapshot of every member at creation
+  // time — same mechanism as the search/upload picker below, just reusing
+  // it rather than adding a new audience type end-to-end.
+  const effectiveAudienceType: "all" | "cohort" | "custom" =
+    uiMode === "cohort" && selectedCohortIds.size > 1 ? "custom" : uiMode;
+  const cohortStudentIds =
+    uiMode === "cohort" && selectedCohortIds.size > 1
+      ? students.filter((s) => s.cohort_id && selectedCohortIds.has(s.cohort_id)).map((s) => s.id)
+      : [];
+  const singleCohortId =
+    uiMode === "cohort" && selectedCohortIds.size === 1 ? [...selectedCohortIds][0] : "";
 
   async function handleRosterUpload(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -94,51 +117,52 @@ export function AudiencePicker({
     <fieldset className="flex flex-col gap-3 rounded-card border border-border p-3">
       <legend className="px-1 text-sm font-medium text-foreground">Audience</legend>
 
+      <input type="hidden" name="audience_type" value={effectiveAudienceType} />
+      {singleCohortId && <input type="hidden" name="cohort_id" value={singleCohortId} />}
+      {cohortStudentIds.map((id) => (
+        <input key={id} type="hidden" name="student_ids" value={id} />
+      ))}
+
       <div className="flex flex-wrap gap-4">
         <label className="flex items-center gap-1.5 text-sm text-foreground">
-          <input
-            type="radio"
-            name="audience_type"
-            value="all"
-            checked={audienceType === "all"}
-            onChange={() => setAudienceType("all")}
-          />
+          <input type="radio" checked={uiMode === "all"} onChange={() => setUiMode("all")} />
           Everyone
         </label>
         <label className="flex items-center gap-1.5 text-sm text-foreground">
-          <input
-            type="radio"
-            name="audience_type"
-            value="cohort"
-            checked={audienceType === "cohort"}
-            onChange={() => setAudienceType("cohort")}
-          />
-          A cohort
+          <input type="radio" checked={uiMode === "cohort"} onChange={() => setUiMode("cohort")} />
+          One or more cohorts
         </label>
         <label className="flex items-center gap-1.5 text-sm text-foreground">
-          <input
-            type="radio"
-            name="audience_type"
-            value="custom"
-            checked={audienceType === "custom"}
-            onChange={() => setAudienceType("custom")}
-          />
+          <input type="radio" checked={uiMode === "custom"} onChange={() => setUiMode("custom")} />
           Custom list
         </label>
       </div>
 
-      {audienceType === "cohort" && (
-        <Select name="cohort_id" value={cohortId} onChange={(e) => setCohortId(e.target.value)} required>
-          <option value="">Choose a cohort…</option>
+      {uiMode === "cohort" && (
+        <div className="flex flex-col gap-1">
           {cohorts.map((c) => (
-            <option key={c.id} value={c.id}>
+            <label key={c.id} className="flex items-center gap-2 py-1 text-sm text-foreground">
+              <input
+                type="checkbox"
+                checked={selectedCohortIds.has(c.id)}
+                onChange={() => toggleCohort(c.id)}
+              />
               {c.name}
-            </option>
+            </label>
           ))}
-        </Select>
+          {selectedCohortIds.size > 1 && (
+            <p className="text-xs text-muted">
+              {cohortStudentIds.length} student(s) across {selectedCohortIds.size} cohorts. Membership is
+              captured now — students added to these cohorts later won't be included automatically.
+            </p>
+          )}
+          {selectedCohortIds.size === 0 && (
+            <p className="text-xs text-danger">Choose at least one cohort.</p>
+          )}
+        </div>
       )}
 
-      {audienceType === "custom" && (
+      {uiMode === "custom" && (
         <div className="flex flex-col gap-2">
           <div className="flex gap-4 text-xs">
             <button

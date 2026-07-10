@@ -14,6 +14,7 @@ interface Student {
   id: string;
   email: string;
   full_name: string | null;
+  cohort_id?: string | null;
 }
 
 interface EventCreateModalProps {

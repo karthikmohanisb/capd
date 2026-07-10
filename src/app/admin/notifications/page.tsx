@@ -16,7 +16,7 @@ export default async function AdminNotificationsPage() {
       fetchAllRows((from, to) =>
         supabase
           .from("profiles")
-          .select("id, email, full_name")
+          .select("id, email, full_name, cohort_id")
           .eq("role", "student")
           .eq("status", "active")
           .order("email", { ascending: true })
