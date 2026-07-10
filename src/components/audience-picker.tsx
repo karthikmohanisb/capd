@@ -70,7 +70,7 @@ export function AudiencePicker({
   const effectiveAudienceType: "all" | "cohort" | "custom" =
     uiMode === "cohort" && selectedCohortIds.size > 1 ? "custom" : uiMode;
   const cohortStudentIds =
-    uiMode === "cohort" && selectedCohortIds.size > 1
+    uiMode === "cohort" && selectedCohortIds.size > 0
       ? students.filter((s) => s.cohort_id && selectedCohortIds.has(s.cohort_id)).map((s) => s.id)
       : [];
   const singleCohortId =
