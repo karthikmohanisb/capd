@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { fetchAllRows } from "@/lib/supabase/fetch-all";
 import { AdminEventsClient } from "./events-client";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +9,7 @@ export default async function AdminEventsPage() {
   await requireAdmin();
   const supabase = await createClient();
 
-  const [{ data: events }, { data: cohorts }, { data: students }] = await Promise.all([
+  const [{ data: events }, { data: cohorts }, students] = await Promise.all([
     supabase
       .from("events")
       .select(
@@ -17,11 +18,14 @@ export default async function AdminEventsPage() {
       .order("event_at", { ascending: true })
       .limit(200),
     supabase.from("cohorts").select("id, name").order("name", { ascending: true }),
-    supabase
-      .from("profiles")
-      .select("id, email, full_name, cohort_id")
-      .eq("role", "student")
-      .order("full_name", { ascending: true }),
+    fetchAllRows((from, to) =>
+      supabase
+        .from("profiles")
+        .select("id, email, full_name, cohort_id")
+        .eq("role", "student")
+        .order("full_name", { ascending: true })
+        .range(from, to)
+    ),
   ]);
 
   const sessionIds = (events ?? [])
@@ -70,7 +74,7 @@ export default async function AdminEventsPage() {
     <AdminEventsClient
       initialEvents={events ?? []}
       cohorts={cohorts ?? []}
-      students={students ?? []}
+      students={students}
       sessionDataById={sessionDataById}
       cohortNameById={cohortNameById}
       attendanceBySession={recordsBySession}

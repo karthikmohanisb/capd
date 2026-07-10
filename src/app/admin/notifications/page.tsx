@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { fetchAllRows } from "@/lib/supabase/fetch-all";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ComposeForm } from "./compose-form";
@@ -10,14 +11,17 @@ export default async function AdminNotificationsPage() {
   await requireAdmin();
   const supabase = await createClient();
 
-  const [{ data: students }, { data: cohorts }, { count: deviceCount }, { data: notifications }] =
+  const [students, { data: cohorts }, { count: deviceCount }, { data: notifications }] =
     await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id, email, full_name")
-        .eq("role", "student")
-        .eq("status", "active")
-        .order("email", { ascending: true }),
+      fetchAllRows((from, to) =>
+        supabase
+          .from("profiles")
+          .select("id, email, full_name")
+          .eq("role", "student")
+          .eq("status", "active")
+          .order("email", { ascending: true })
+          .range(from, to)
+      ),
       supabase.from("cohorts").select("id, name").order("name", { ascending: true }),
       supabase
         .from("push_subscriptions")
@@ -40,7 +44,7 @@ export default async function AdminNotificationsPage() {
       </div>
 
       <Card>
-        <ComposeForm cohorts={cohorts ?? []} students={students ?? []} />
+        <ComposeForm cohorts={cohorts ?? []} students={students} />
       </Card>
 
       <div className="flex flex-col gap-3">

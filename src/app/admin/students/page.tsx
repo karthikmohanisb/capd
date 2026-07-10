@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { fetchAllRows } from "@/lib/supabase/fetch-all";
 import { Button } from "@/components/ui/button";
 import { StudentList } from "./student-list";
 
@@ -8,17 +9,20 @@ export default async function AdminStudentsPage() {
   await requireAdmin();
   const supabase = await createClient();
 
-  const [{ data: students }, { data: cohorts }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, email, full_name, student_number, status, cohort_id")
-      .eq("role", "student")
-      .order("email", { ascending: true }),
+  const [students, { data: cohorts }] = await Promise.all([
+    fetchAllRows((from, to) =>
+      supabase
+        .from("profiles")
+        .select("id, email, full_name, student_number, status, cohort_id")
+        .eq("role", "student")
+        .order("email", { ascending: true })
+        .range(from, to)
+    ),
     supabase.from("cohorts").select("id, name"),
   ]);
 
   const cohortNameById = new Map((cohorts ?? []).map((c) => [c.id, c.name]));
-  const studentsWithCohort = (students ?? []).map((s) => ({
+  const studentsWithCohort = students.map((s) => ({
     ...s,
     cohortName: s.cohort_id ? cohortNameById.get(s.cohort_id) ?? null : null,
   }));
