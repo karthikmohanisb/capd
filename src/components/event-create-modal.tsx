@@ -90,12 +90,15 @@ export function EventCreateModal({ isOpen, selectedDate, cohorts, students, onCl
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">Location</label>
-              <input
-                type="text"
+              <select
                 name="location"
-                placeholder="e.g. Auditorium"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              >
+                <option value="">Select a location...</option>
+                <option value="Khemka Auditorium">Khemka Auditorium</option>
+                <option value="Atrium">Atrium</option>
+                <option value="AC2LT">AC2LT</option>
+              </select>
             </div>
           </div>
 

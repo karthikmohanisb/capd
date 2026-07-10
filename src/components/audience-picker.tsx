@@ -150,10 +150,11 @@ export function AudiencePicker({
               {c.name}
             </label>
           ))}
-          {selectedCohortIds.size > 1 && (
+          {selectedCohortIds.size > 0 && (
             <p className="text-xs text-muted">
-              {cohortStudentIds.length} student(s) across {selectedCohortIds.size} cohorts. Membership is
-              captured now — students added to these cohorts later won't be included automatically.
+              {cohortStudentIds.length} student(s)
+              {selectedCohortIds.size > 1 && ` across ${selectedCohortIds.size} cohorts`}
+              {selectedCohortIds.size > 1 && ". Membership is captured now — students added to these cohorts later won't be included automatically."}
             </p>
           )}
           {selectedCohortIds.size === 0 && (
